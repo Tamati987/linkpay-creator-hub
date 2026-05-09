@@ -586,7 +586,15 @@ function ProductsSection({
             <input
               type="file"
               hidden
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null;
+                if (f && f.size > MAX_PRODUCT_FILE_BYTES) {
+                  e.target.value = "";
+                  toast.error(PRODUCT_FILE_TOO_LARGE_MSG);
+                  return;
+                }
+                setFile(f);
+              }}
             />
           </label>
           <button
