@@ -1,4 +1,4 @@
-import { Lock, Sparkles, X } from "lucide-react";
+import { Crown, Lock, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 export function ProLockModal({
