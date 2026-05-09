@@ -605,6 +605,9 @@ function ProductsSection({
             <Plus className="h-3.5 w-3.5" /> {loading ? "Ajout…" : "Ajouter le produit"}
           </button>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          Format PDF ou E-pub recommandé (max. 25 Mo).
+        </p>
       </div>
     </Card>
   );
