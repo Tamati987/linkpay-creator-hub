@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   ExternalLink,
   Eye,
+  Image as ImageIcon,
   LogOut,
   Plus,
   Sparkles,
@@ -512,7 +513,21 @@ function ProductsSection({
           placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
+            {imagePreview ? (
+              <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" />
+            ) : (
+              <ImageIcon className="h-3.5 w-3.5" />
+            )}
+            {image ? image.name : "Visuel (image)"}
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+            />
+          </label>
           <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
             <Upload className="h-3.5 w-3.5" />
             {file ? file.name : "Fichier (PDF, ZIP…)"}
