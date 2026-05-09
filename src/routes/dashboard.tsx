@@ -476,7 +476,11 @@ function ProductsSection({
     setLoading(true);
     let filePath: string | null = null;
     if (file) {
-      const path = `${userId}/${Date.now()}-${file.name}`;
+      if (file.size > MAX_PRODUCT_FILE_BYTES) {
+        setLoading(false);
+        return toast.error(PRODUCT_FILE_TOO_LARGE_MSG);
+      }
+      const path = `${userId}/${Date.now()}-${sanitizeFileName(file.name)}`;
       const { error } = await supabase.storage.from("products").upload(path, file);
       if (error) {
         setLoading(false);
@@ -486,7 +490,7 @@ function ProductsSection({
     }
     let imageUrl: string | null = null;
     if (image) {
-      const ext = image.name.split(".").pop();
+      const ext = (image.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10) || "jpg";
       const path = `${userId}/${Date.now()}-cover.${ext}`;
       const { error } = await supabase.storage.from("product-images").upload(path, image, {
         cacheControl: "3600",
@@ -582,7 +586,15 @@ function ProductsSection({
             <input
               type="file"
               hidden
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null;
+                if (f && f.size > MAX_PRODUCT_FILE_BYTES) {
+                  e.target.value = "";
+                  toast.error(PRODUCT_FILE_TOO_LARGE_MSG);
+                  return;
+                }
+                setFile(f);
+              }}
             />
           </label>
           <button
@@ -593,9 +605,31 @@ function ProductsSection({
             <Plus className="h-3.5 w-3.5" /> {loading ? "Ajout…" : "Ajouter le produit"}
           </button>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          Format PDF ou E-pub recommandé (max. 25 Mo).
+        </p>
       </div>
     </Card>
   );
+}
+
+const MAX_PRODUCT_FILE_BYTES = 25 * 1024 * 1024;
+const PRODUCT_FILE_TOO_LARGE_MSG =
+  "Pour garantir une vitesse de téléchargement optimale à vos clients, les fichiers sont limités à 25 Mo. Veuillez compresser votre PDF ou utiliser un lien externe.";
+
+function sanitizeFileName(name: string) {
+  const dot = name.lastIndexOf(".");
+  const base = (dot > 0 ? name.slice(0, dot) : name)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "fichier";
+  const ext = (dot > 0 ? name.slice(dot + 1) : "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 10);
+  return ext ? `${base}.${ext}` : base;
 }
 
 const formatPrice = (cents: number) =>
