@@ -598,6 +598,25 @@ function ProductsSection({
   );
 }
 
+const MAX_PRODUCT_FILE_BYTES = 25 * 1024 * 1024;
+const PRODUCT_FILE_TOO_LARGE_MSG =
+  "Pour garantir une vitesse de téléchargement optimale à vos clients, les fichiers sont limités à 25 Mo. Veuillez compresser votre PDF ou utiliser un lien externe.";
+
+function sanitizeFileName(name: string) {
+  const dot = name.lastIndexOf(".");
+  const base = (dot > 0 ? name.slice(0, dot) : name)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "fichier";
+  const ext = (dot > 0 ? name.slice(dot + 1) : "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 10);
+  return ext ? `${base}.${ext}` : base;
+}
+
 const formatPrice = (cents: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(
     cents / 100
