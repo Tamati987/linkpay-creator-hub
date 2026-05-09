@@ -1,4 +1,4 @@
-import { Lock, Sparkles, X } from "lucide-react";
+import { Crown, Lock, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 export function ProLockModal({
@@ -33,12 +33,12 @@ export function ProLockModal({
         </div>
 
         <h3 className="text-lg font-semibold tracking-tight">
-          {feature ?? "Cette fonctionnalité"} est réservée aux membres Pro
+          {feature ?? "Cette fonctionnalité"} est réservée au plan Business Ultime
         </h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Économisez <span className="font-semibold text-foreground">15$/mois</span> par
-          rapport à Linktree en passant à LinkPay Pro. Liens illimités, 0% de
-          commission, et bien plus.
+          Débloquez la vente directe, le compte à rebours, la capture de
+          prospects, le domaine personnalisé et bien plus pour seulement{" "}
+          <span className="font-semibold text-foreground">9$/mois</span>.
         </p>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
@@ -47,7 +47,7 @@ export function ProLockModal({
             onClick={onClose}
             className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-4 text-sm font-medium text-primary-foreground shadow-glow"
           >
-            <Sparkles className="h-3.5 w-3.5" /> Passer à Pro
+            <Crown className="h-3.5 w-3.5" /> Passer à Business Ultime
           </Link>
           <button
             onClick={onClose}

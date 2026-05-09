@@ -1,5 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Sparkles, X, ArrowLeft } from "lucide-react";
+import {
+  Check,
+  Sparkles,
+  X,
+  ArrowLeft,
+  ShoppingBag,
+  Timer,
+  Mail,
+  Globe,
+  EyeOff,
+  BellRing,
+  Crown,
+} from "lucide-react";
 
 // TODO: remplacer par le vrai lien Stripe Checkout fourni par l'utilisateur
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_placeholder";
@@ -7,16 +19,16 @@ const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_placeholder";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Tarifs — LinkPay Pro" },
+      { title: "Tarifs — LinkPay Business Ultime" },
       {
         name: "description",
         content:
-          "Comparez LinkPay Gratuit et Pro. Liens illimités, 0% de commission, statistiques détaillées et domaine personnalisé.",
+          "Passez à LinkPay Business Ultime : vente directe, compte à rebours, capture de prospects, domaine personnalisé, zéro branding et notifications email.",
       },
-      { property: "og:title", content: "Tarifs — LinkPay Pro" },
+      { property: "og:title", content: "Tarifs — LinkPay Business Ultime" },
       {
         property: "og:description",
-        content: "Passez à LinkPay Pro pour 9$/mois. Économisez 15$/mois vs Linktree.",
+        content: "Le plan tout-en-un pour les créateurs sérieux. 9$/mois.",
       },
     ],
   }),
@@ -49,13 +61,12 @@ function PricingPage() {
             <Sparkles className="h-3 w-3" /> Tarifs simples
           </span>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Choisissez le plan qui vous fait grandir
+            Le plan tout-en-un pour les créateurs sérieux
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Commencez gratuitement. Passez à Pro quand vos ventes décollent.
-            <span className="ml-1 font-medium text-foreground">
-              Économisez 15$/mois vs Linktree.
-            </span>
+            Commencez gratuitement. Passez à{" "}
+            <span className="font-medium text-foreground">Business Ultime</span>{" "}
+            pour vendre, capturer et convertir comme un pro.
           </p>
         </div>
 
@@ -79,8 +90,10 @@ function PricingPage() {
               <Feature included>Vente de produits digitaux</Feature>
               <Feature>Commission de 5% sur les ventes</Feature>
               <Feature>Branding LinkPay visible</Feature>
-              <Feature missing>Statistiques détaillées</Feature>
+              <Feature missing>Compte à rebours marketing</Feature>
+              <Feature missing>Formulaire de capture d'emails</Feature>
               <Feature missing>Domaine personnalisé</Feature>
+              <Feature missing>Notifications email de ventes</Feature>
             </ul>
 
             <Link
@@ -91,17 +104,17 @@ function PricingPage() {
             </Link>
           </div>
 
-          {/* PRO */}
+          {/* BUSINESS ULTIME */}
           <div className="relative rounded-2xl border border-primary/50 bg-card p-6 shadow-glow">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-button px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground shadow-glow">
-              Recommandé
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-gradient-button px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground shadow-glow">
+              <Crown className="h-3 w-3" /> Recommandé
             </div>
             <div className="flex items-center justify-between">
               <div className="text-xs font-medium uppercase tracking-wider text-primary">
-                Pro
+                Business Ultime
               </div>
               <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                -15$/mois vs Linktree
+                Tout inclus
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
@@ -109,18 +122,40 @@ function PricingPage() {
               <span className="text-sm text-muted-foreground">/mois</span>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Pour les créateurs qui veulent maximiser leurs revenus.
+              Vendez, capturez et convertissez sans aucune limite.
             </p>
 
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              <HeroFeature icon={ShoppingBag} label="Vente directe" />
+              <HeroFeature icon={Timer} label="Compte à rebours" />
+              <HeroFeature icon={Mail} label="Capture prospects" />
+              <HeroFeature icon={Globe} label="Domaine perso" />
+              <HeroFeature icon={EyeOff} label="Zéro branding" />
+              <HeroFeature icon={BellRing} label="Notifs email" />
+            </div>
+
             <ul className="mt-6 space-y-3 text-sm">
-              <Feature included>Liens illimités</Feature>
               <Feature included highlight>
-                0% de commission sur les ventes
+                Vente directe de produits numériques (e-books, PDF…)
               </Feature>
-              <Feature included highlight>Suppression du branding LinkPay</Feature>
-              <Feature included highlight>Statistiques détaillées</Feature>
-              <Feature included highlight>Domaine personnalisé</Feature>
-              <Feature included>Thèmes premium</Feature>
+              <Feature included highlight>
+                Bloc compte à rebours personnalisable
+              </Feature>
+              <Feature included highlight>
+                Formulaire de candidature pour capturer les emails
+              </Feature>
+              <Feature included highlight>
+                Domaine personnalisé (.com, .fr…)
+              </Feature>
+              <Feature included highlight>
+                Suppression totale du branding LinkPay
+              </Feature>
+              <Feature included highlight>
+                Notifications email à chaque vente et prospect
+              </Feature>
+              <Feature included>Liens et produits illimités</Feature>
+              <Feature included>0% de commission sur les ventes</Feature>
+              <Feature included>Statistiques détaillées</Feature>
               <Feature included>Support prioritaire</Feature>
             </ul>
 
@@ -128,9 +163,9 @@ function PricingPage() {
               href={STRIPE_CHECKOUT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-7 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-4 text-sm font-medium text-primary-foreground shadow-glow transition hover:opacity-95"
+              className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-button px-5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.01] hover:opacity-95 active:scale-[0.99]"
             >
-              <Sparkles className="h-3.5 w-3.5" /> Devenir Pro
+              <Crown className="h-4 w-4" /> Passer à Business Ultime
             </a>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
               Annulable à tout moment. Sans engagement.
@@ -143,6 +178,23 @@ function PricingPage() {
           mises à jour automatiques.
         </p>
       </main>
+    </div>
+  );
+}
+
+function HeroFeature({
+  icon: Icon,
+  label,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-surface/60 px-2.5 py-2">
+      <Icon className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+      <span className="truncate text-[11px] font-medium text-foreground">
+        {label}
+      </span>
     </div>
   );
 }
