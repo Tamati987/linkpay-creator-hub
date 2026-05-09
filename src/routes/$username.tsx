@@ -34,7 +34,7 @@ async function fetchProfile(username: string) {
       .order("created_at", { ascending: true }),
     supabase
       .from("products")
-      .select("id, title, description, price_cents, position")
+      .select("id, title, description, price_cents, image_url, position")
       .eq("user_id", profile.id)
       .order("position", { ascending: true })
       .order("created_at", { ascending: true }),

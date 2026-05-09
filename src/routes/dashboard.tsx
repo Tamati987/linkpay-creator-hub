@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   ExternalLink,
   Eye,
+  Image as ImageIcon,
   LogOut,
   Plus,
   Sparkles,
@@ -34,6 +35,7 @@ type ProductRow = {
   description: string;
   price_cents: number;
   file_path: string | null;
+  image_url: string | null;
   position: number;
 };
 
@@ -381,7 +383,10 @@ function ProductsSection({
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const imagePreview = image ? URL.createObjectURL(image) : null;
 
   const add = async () => {
     const priceNum = parseFloat(price);
@@ -399,12 +404,27 @@ function ProductsSection({
       }
       filePath = path;
     }
+    let imageUrl: string | null = null;
+    if (image) {
+      const ext = image.name.split(".").pop();
+      const path = `${userId}/${Date.now()}-cover.${ext}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, image, {
+        cacheControl: "3600",
+      });
+      if (error) {
+        setLoading(false);
+        return toast.error(error.message);
+      }
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      imageUrl = pub.publicUrl;
+    }
     const { error } = await supabase.from("products").insert({
       user_id: userId,
       title,
       description,
       price_cents: Math.round(priceNum * 100),
       file_path: filePath,
+      image_url: imageUrl,
       position: products.length,
     });
     setLoading(false);
@@ -413,6 +433,7 @@ function ProductsSection({
     setDescription("");
     setPrice("");
     setFile(null);
+    setImage(null);
     onChanged();
     toast.success("Produit ajouté");
   };
@@ -431,6 +452,17 @@ function ProductsSection({
             key={p.id}
             className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2"
           >
+            {p.image_url ? (
+              <img
+                src={p.image_url}
+                alt=""
+                className="h-12 w-12 rounded-md border border-border object-cover"
+              />
+            ) : (
+              <div className="grid h-12 w-12 place-items-center rounded-md border border-dashed border-border text-muted-foreground">
+                <Upload className="h-4 w-4" />
+              </div>
+            )}
             <div className="flex-1 px-2">
               <div className="text-sm font-medium">{p.title}</div>
               {p.description && (
@@ -481,7 +513,21 @@ function ProductsSection({
           placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
+            {imagePreview ? (
+              <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" />
+            ) : (
+              <ImageIcon className="h-3.5 w-3.5" />
+            )}
+            {image ? image.name : "Visuel (image)"}
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+            />
+          </label>
           <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
             <Upload className="h-3.5 w-3.5" />
             {file ? file.name : "Fichier (PDF, ZIP…)"}
