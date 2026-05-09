@@ -51,6 +51,7 @@ function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [lockedFeature, setLockedFeature] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
