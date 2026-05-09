@@ -451,39 +451,7 @@ function ProductsSection({
     <Card title="Produits">
       <div className="space-y-2">
         {products.map((p) => (
-          <div
-            key={p.id}
-            className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2"
-          >
-            {p.image_url ? (
-              <img
-                src={p.image_url}
-                alt=""
-                className="h-12 w-12 rounded-md border border-border object-cover"
-              />
-            ) : (
-              <div className="grid h-12 w-12 place-items-center rounded-md border border-dashed border-border text-muted-foreground">
-                <Upload className="h-4 w-4" />
-              </div>
-            )}
-            <div className="flex-1 px-2">
-              <div className="text-sm font-medium">{p.title}</div>
-              {p.description && (
-                <div className="text-xs text-muted-foreground line-clamp-1">
-                  {p.description}
-                </div>
-              )}
-            </div>
-            <span className="rounded-md bg-accent px-2 py-1 text-xs font-semibold tabular-nums">
-              {formatPrice(p.price_cents)}
-            </span>
-            <button
-              onClick={() => remove(p.id)}
-              className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
+          <ProductRowItem key={p.id} product={p} userId={userId} onChanged={onChanged} onRemove={remove} />
         ))}
         {products.length === 0 && (
           <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
