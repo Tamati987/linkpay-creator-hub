@@ -186,29 +186,34 @@ function ProFeaturesSection({
   onLockedClick: (feature: string) => void;
 }) {
   const features = [
+    { label: "Vente directe de produits", icon: ShoppingBag },
+    { label: "Compte à rebours marketing", icon: Timer },
+    { label: "Formulaire de capture d'emails", icon: Mail },
+    { label: "Domaine personnalisé", icon: Globe },
+    { label: "Suppression du branding", icon: EyeOff },
+    { label: "Notifications email de ventes", icon: BellRing },
     { label: "Statistiques détaillées", icon: BarChart3 },
     { label: "Thèmes Premium", icon: Palette },
-    { label: "Domaine personnalisé", icon: Globe },
   ];
   return (
     <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-glow">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> Fonctionnalités Pro
+            <Crown className="h-3.5 w-3.5 text-primary" /> Business Ultime
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Débloquez tout le potentiel de LinkPay.
+            Le plan tout-en-un pour vendre, capturer et convertir.
           </p>
         </div>
         <Link
           to="/pricing"
           className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow"
         >
-          Passer à Pro
+          <Crown className="h-3.5 w-3.5" /> Débloquer
         </Link>
       </div>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         {features.map((f) => (
           <button
             key={f.label}
@@ -216,7 +221,7 @@ function ProFeaturesSection({
             className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-surface p-3 text-left transition hover:border-primary/40 hover:bg-surface-elevated"
           >
             <div className="flex items-center gap-2 text-sm">
-              <f.icon className="h-4 w-4 text-muted-foreground" />
+              <f.icon className="h-4 w-4 text-primary/80" />
               <span>{f.label}</span>
             </div>
             <Lock className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
