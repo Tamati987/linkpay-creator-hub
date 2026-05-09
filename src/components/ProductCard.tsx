@@ -8,6 +8,7 @@ type Product = {
   title: string;
   description: string;
   price_cents: number;
+  image_url?: string | null;
 };
 
 const formatPrice = (cents: number) =>
@@ -48,6 +49,19 @@ export function ProductCard({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+      {product.image_url && (
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="block w-full overflow-hidden"
+          aria-label={product.title}
+        >
+          <img
+            src={product.image_url}
+            alt={product.title}
+            className="aspect-[16/9] w-full object-cover transition hover:opacity-95"
+          />
+        </button>
+      )}
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-surface-elevated"
