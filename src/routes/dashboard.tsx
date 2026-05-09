@@ -3,11 +3,15 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  BarChart3,
   Check,
   ExternalLink,
   Eye,
+  Globe,
   Image as ImageIcon,
+  Lock,
   LogOut,
+  Palette,
   Pencil,
   Plus,
   Sparkles,
@@ -18,6 +22,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { ProLockModal } from "@/components/ProLockModal";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
