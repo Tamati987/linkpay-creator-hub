@@ -3,11 +3,15 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  BarChart3,
   Check,
   ExternalLink,
   Eye,
+  Globe,
   Image as ImageIcon,
+  Lock,
   LogOut,
+  Palette,
   Pencil,
   Plus,
   Sparkles,
@@ -18,6 +22,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { ProLockModal } from "@/components/ProLockModal";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -46,6 +51,7 @@ function DashboardPage() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [lockedFeature, setLockedFeature] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
@@ -117,6 +123,12 @@ function DashboardPage() {
           </Link>
           <div className="flex items-center gap-2">
             <Link
+              to="/pricing"
+              className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Passer à Pro
+            </Link>
+            <Link
               to="/$username"
               params={{ username: profile.username }}
               className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
@@ -150,8 +162,62 @@ function DashboardPage() {
         <ProfileSection profile={profile} onSaved={refresh} />
         <LinksSection userId={user.id} links={links} onChanged={refresh} />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
+        <ProFeaturesSection onLockedClick={setLockedFeature} />
       </main>
+
+      <ProLockModal
+        open={lockedFeature !== null}
+        onClose={() => setLockedFeature(null)}
+        feature={lockedFeature ?? undefined}
+      />
     </div>
+  );
+}
+
+function ProFeaturesSection({
+  onLockedClick,
+}: {
+  onLockedClick: (feature: string) => void;
+}) {
+  const features = [
+    { label: "Statistiques détaillées", icon: BarChart3 },
+    { label: "Thèmes Premium", icon: Palette },
+    { label: "Domaine personnalisé", icon: Globe },
+  ];
+  return (
+    <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-glow">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> Fonctionnalités Pro
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Débloquez tout le potentiel de LinkPay.
+          </p>
+        </div>
+        <Link
+          to="/pricing"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow"
+        >
+          Passer à Pro
+        </Link>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-3">
+        {features.map((f) => (
+          <button
+            key={f.label}
+            onClick={() => onLockedClick(f.label)}
+            className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-surface p-3 text-left transition hover:border-primary/40 hover:bg-surface-elevated"
+          >
+            <div className="flex items-center gap-2 text-sm">
+              <f.icon className="h-4 w-4 text-muted-foreground" />
+              <span>{f.label}</span>
+            </div>
+            <Lock className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
