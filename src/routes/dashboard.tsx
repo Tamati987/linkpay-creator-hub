@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  Check,
   ExternalLink,
   Eye,
   Image as ImageIcon,
   LogOut,
+  Pencil,
   Plus,
   Sparkles,
   Trash2,
   Upload,
   Wallet,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -448,39 +451,7 @@ function ProductsSection({
     <Card title="Produits">
       <div className="space-y-2">
         {products.map((p) => (
-          <div
-            key={p.id}
-            className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2"
-          >
-            {p.image_url ? (
-              <img
-                src={p.image_url}
-                alt=""
-                className="h-12 w-12 rounded-md border border-border object-cover"
-              />
-            ) : (
-              <div className="grid h-12 w-12 place-items-center rounded-md border border-dashed border-border text-muted-foreground">
-                <Upload className="h-4 w-4" />
-              </div>
-            )}
-            <div className="flex-1 px-2">
-              <div className="text-sm font-medium">{p.title}</div>
-              {p.description && (
-                <div className="text-xs text-muted-foreground line-clamp-1">
-                  {p.description}
-                </div>
-              )}
-            </div>
-            <span className="rounded-md bg-accent px-2 py-1 text-xs font-semibold tabular-nums">
-              {formatPrice(p.price_cents)}
-            </span>
-            <button
-              onClick={() => remove(p.id)}
-              className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
+          <ProductRowItem key={p.id} product={p} userId={userId} onChanged={onChanged} onRemove={remove} />
         ))}
         {products.length === 0 && (
           <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
@@ -554,3 +525,174 @@ const formatPrice = (cents: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(
     cents / 100
   );
+
+function ProductRowItem({
+  product,
+  userId,
+  onChanged,
+  onRemove,
+}: {
+  product: ProductRow;
+  userId: string;
+  onChanged: () => void;
+  onRemove: (id: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(product.title);
+  const [description, setDescription] = useState(product.description);
+  const [price, setPrice] = useState((product.price_cents / 100).toString());
+  const [image, setImage] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const imagePreview = image ? URL.createObjectURL(image) : product.image_url;
+
+  const cancel = () => {
+    setEditing(false);
+    setTitle(product.title);
+    setDescription(product.description);
+    setPrice((product.price_cents / 100).toString());
+    setImage(null);
+  };
+
+  const save = async () => {
+    const priceNum = parseFloat(price);
+    if (!title || isNaN(priceNum) || priceNum < 0) {
+      return toast.error("Titre et prix valides requis");
+    }
+    setSaving(true);
+    let imageUrl = product.image_url;
+    if (image) {
+      const ext = image.name.split(".").pop();
+      const path = `${userId}/${Date.now()}-cover.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, image, { cacheControl: "3600" });
+      if (upErr) {
+        setSaving(false);
+        return toast.error(upErr.message);
+      }
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      imageUrl = pub.publicUrl;
+    }
+    const { error } = await supabase
+      .from("products")
+      .update({
+        title,
+        description,
+        price_cents: Math.round(priceNum * 100),
+        image_url: imageUrl,
+      })
+      .eq("id", product.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Produit mis à jour");
+    setEditing(false);
+    setImage(null);
+    onChanged();
+  };
+
+  if (!editing) {
+    return (
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2">
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt=""
+            className="h-12 w-12 rounded-md border border-border object-cover"
+          />
+        ) : (
+          <div className="grid h-12 w-12 place-items-center rounded-md border border-dashed border-border text-muted-foreground">
+            <Upload className="h-4 w-4" />
+          </div>
+        )}
+        <div className="flex-1 px-2">
+          <div className="text-sm font-medium">{product.title}</div>
+          {product.description && (
+            <div className="text-xs text-muted-foreground line-clamp-1">
+              {product.description}
+            </div>
+          )}
+        </div>
+        <span className="rounded-md bg-accent px-2 py-1 text-xs font-semibold tabular-nums">
+          {formatPrice(product.price_cents)}
+        </span>
+        <button
+          onClick={() => setEditing(true)}
+          className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+          aria-label="Modifier"
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => onRemove(product.id)}
+          className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+          aria-label="Supprimer"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
+      <div className="flex items-start gap-3">
+        <label className="relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-md border border-border bg-background">
+          {imagePreview ? (
+            <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="grid h-full w-full place-items-center text-muted-foreground">
+              <ImageIcon className="h-4 w-4" />
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+          />
+        </label>
+        <div className="flex-1 space-y-2">
+          <div className="grid gap-2 sm:grid-cols-[2fr_1fr]">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Titre"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+            <input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Prix €"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
+          <input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description"
+            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-2">
+        <button
+          onClick={cancel}
+          disabled={saving}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated hover:text-foreground"
+        >
+          <X className="h-3.5 w-3.5" /> Annuler
+        </button>
+        <button
+          onClick={save}
+          disabled={saving}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-medium text-primary-foreground shadow-glow disabled:opacity-60"
+        >
+          <Check className="h-3.5 w-3.5" /> {saving ? "Enregistrement…" : "Enregistrer"}
+        </button>
+      </div>
+    </div>
+  );
+}
