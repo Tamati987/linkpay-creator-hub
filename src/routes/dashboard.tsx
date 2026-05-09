@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  Check,
   ExternalLink,
   Eye,
   Image as ImageIcon,
   LogOut,
+  Pencil,
   Plus,
   Sparkles,
   Trash2,
   Upload,
   Wallet,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
