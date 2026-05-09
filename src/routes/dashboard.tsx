@@ -476,7 +476,11 @@ function ProductsSection({
     setLoading(true);
     let filePath: string | null = null;
     if (file) {
-      const path = `${userId}/${Date.now()}-${file.name}`;
+      if (file.size > MAX_PRODUCT_FILE_BYTES) {
+        setLoading(false);
+        return toast.error(PRODUCT_FILE_TOO_LARGE_MSG);
+      }
+      const path = `${userId}/${Date.now()}-${sanitizeFileName(file.name)}`;
       const { error } = await supabase.storage.from("products").upload(path, file);
       if (error) {
         setLoading(false);
