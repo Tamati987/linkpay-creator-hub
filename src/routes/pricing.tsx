@@ -1,5 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Sparkles, X, ArrowLeft } from "lucide-react";
+import {
+  Check,
+  Sparkles,
+  X,
+  ArrowLeft,
+  ShoppingBag,
+  Timer,
+  Mail,
+  Globe,
+  EyeOff,
+  BellRing,
+  Crown,
+} from "lucide-react";
 
 // TODO: remplacer par le vrai lien Stripe Checkout fourni par l'utilisateur
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_placeholder";
