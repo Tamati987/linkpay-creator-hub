@@ -490,7 +490,7 @@ function ProductsSection({
     }
     let imageUrl: string | null = null;
     if (image) {
-      const ext = image.name.split(".").pop();
+      const ext = (image.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10) || "jpg";
       const path = `${userId}/${Date.now()}-cover.${ext}`;
       const { error } = await supabase.storage.from("product-images").upload(path, image, {
         cacheControl: "3600",
