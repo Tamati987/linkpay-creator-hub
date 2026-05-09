@@ -55,10 +55,10 @@ function Landing() {
             Créer ma page <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            to="/demo"
+            to="/login"
             className="inline-flex h-11 items-center rounded-xl border border-border bg-surface px-5 text-sm font-medium text-foreground transition hover:bg-surface-elevated"
           >
-            Voir un exemple
+            J'ai déjà un compte
           </Link>
         </div>
 
