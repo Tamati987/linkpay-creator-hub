@@ -19,16 +19,16 @@ const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_placeholder";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Tarifs — LinkPay Pro" },
+      { title: "Tarifs — LinkPay Business Ultime" },
       {
         name: "description",
         content:
-          "Comparez LinkPay Gratuit et Pro. Liens illimités, 0% de commission, statistiques détaillées et domaine personnalisé.",
+          "Passez à LinkPay Business Ultime : vente directe, compte à rebours, capture de prospects, domaine personnalisé, zéro branding et notifications email.",
       },
-      { property: "og:title", content: "Tarifs — LinkPay Pro" },
+      { property: "og:title", content: "Tarifs — LinkPay Business Ultime" },
       {
         property: "og:description",
-        content: "Passez à LinkPay Pro pour 9$/mois. Économisez 15$/mois vs Linktree.",
+        content: "Le plan tout-en-un pour les créateurs sérieux. 9$/mois.",
       },
     ],
   }),
