@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
+import { VideoEmbed } from "@/components/VideoEmbed";
+import { NewsletterBlock } from "@/components/NewsletterBlock";
+import { detectVideo } from "@/lib/video";
 
 export const Route = createFileRoute("/$username")({
   component: PublicProfile,
@@ -14,12 +17,13 @@ type Profile = {
   display_name: string;
   bio: string;
   avatar_url: string | null;
+  is_pro: boolean;
 };
 
 async function fetchProfile(username: string) {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, username, display_name, bio, avatar_url")
+    .select("id, username, display_name, bio, avatar_url, is_pro")
     .eq("username", username)
     .maybeSingle();
   if (error) throw error;
@@ -28,7 +32,7 @@ async function fetchProfile(username: string) {
   const [{ data: links }, { data: products }] = await Promise.all([
     supabase
       .from("links")
-      .select("id, title, url, position")
+      .select("id, title, url, position, kind")
       .eq("user_id", profile.id)
       .order("position", { ascending: true })
       .order("created_at", { ascending: true }),
@@ -68,7 +72,7 @@ function PublicProfile() {
         <div>
           <h1 className="text-2xl font-semibold">Profil introuvable</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            @{username} n'a pas (encore) de page LinkPay.
+            @{username} n'a pas (encore) de page Zeno.
           </p>
           <Link
             to="/"
@@ -83,11 +87,7 @@ function PublicProfile() {
 
   const { profile, links, products } = data;
   const initials = (profile.display_name || profile.username)
-    .split(" ")
-    .map((s) => s[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+    .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="min-h-screen px-5 pb-16 pt-12">
@@ -109,9 +109,7 @@ function PublicProfile() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio && (
-            <p className="mt-3 text-balance text-sm text-foreground/80">
-              {profile.bio}
-            </p>
+            <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
           )}
         </div>
 
@@ -120,18 +118,24 @@ function PublicProfile() {
             <ProductCard key={p.id} product={p} sellerId={profile.id} />
           ))}
 
-          {links.map((l) => (
-            <a
-              key={l.id}
-              href={l.url}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="group flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
-            >
-              <span>{l.title}</span>
-              <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
-            </a>
-          ))}
+          {links.map((l) => {
+            const video = profile.is_pro ? detectVideo(l.url) : null;
+            if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
+            return (
+              <a
+                key={l.id}
+                href={l.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="group flex items-center justify-between rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
+              >
+                <span>{l.title}</span>
+                <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
+              </a>
+            );
+          })}
+
+          {profile.is_pro && <NewsletterBlock userId={profile.id} />}
 
           {links.length === 0 && products.length === 0 && (
             <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
@@ -140,12 +144,14 @@ function PublicProfile() {
           )}
         </div>
 
-        <Link
-          to="/"
-          className="mt-12 flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
-        >
-          <Sparkles className="h-3 w-3" /> Propulsé par LinkPay
-        </Link>
+        {!profile.is_pro && (
+          <Link
+            to="/"
+            className="mt-12 flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+          >
+            <Sparkles className="h-3 w-3" /> Propulsé par Zeno
+          </Link>
+        )}
       </div>
     </div>
   );
