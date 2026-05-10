@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { ZenoLogo } from "@/components/ZenoLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
@@ -43,11 +44,8 @@ function LoginPage() {
       </Link>
 
       <div className="mx-auto mt-12 max-w-sm">
-        <div className="mb-8 flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-button shadow-glow">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-semibold">LinkPay</span>
+        <div className="mb-8">
+          <ZenoLogo />
         </div>
 
         <h1 className="text-2xl font-semibold tracking-tight">Bon retour</h1>

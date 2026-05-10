@@ -14,7 +14,7 @@ type Product = {
 const formatPrice = (cents: number) =>
   new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
+    currency: "USD",
   }).format(cents / 100);
 
 export function ProductCard({

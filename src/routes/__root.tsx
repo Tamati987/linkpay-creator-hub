@@ -55,16 +55,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LinkPay — Une page. Tous vos liens. Vos produits." },
+      { title: "Zeno — Une page. Vos liens. Vos vidéos. Vos ventes." },
       {
         name: "description",
         content:
-          "LinkPay est l'alternative élégante à Linktree pour créateurs : centralisez vos liens et vendez vos produits digitaux depuis une seule page.",
+          "Zeno est la plateforme de liens en bio premium pour créateurs : vidéos intégrées, ventes digitales, design dark mode minimaliste.",
       },
-      { property: "og:title", content: "LinkPay" },
+      { property: "og:title", content: "Zeno" },
       {
         property: "og:description",
-        content: "Centralisez vos liens et vendez vos produits depuis une page.",
+        content: "La puissance multimédia pour une fraction du prix.",
       },
       { property: "og:type", content: "website" },
     ],

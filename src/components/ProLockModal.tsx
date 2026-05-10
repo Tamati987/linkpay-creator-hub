@@ -33,12 +33,12 @@ export function ProLockModal({
         </div>
 
         <h3 className="text-lg font-semibold tracking-tight">
-          {feature ?? "Cette fonctionnalité"} est réservée au plan Business Ultime
+          {feature ?? "Cette fonctionnalité"} est réservée à Zeno Pro
         </h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Débloquez la vente directe, le compte à rebours, la capture de
-          prospects, le domaine personnalisé et bien plus pour seulement{" "}
-          <span className="font-semibold text-foreground">9$/mois</span>.
+          Ne payez plus des abonnements hors de prix. Zeno Pro vous offre la
+          puissance multimédia (vidéos, ventes, newsletter, domaine perso) pour
+          seulement <span className="font-semibold text-foreground">9$/mois</span>.
         </p>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
@@ -47,7 +47,7 @@ export function ProLockModal({
             onClick={onClose}
             className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-4 text-sm font-medium text-primary-foreground shadow-glow"
           >
-            <Crown className="h-3.5 w-3.5" /> Passer à Business Ultime
+            <Crown className="h-3.5 w-3.5" /> Passer à Zeno Pro
           </Link>
           <button
             onClick={onClose}
