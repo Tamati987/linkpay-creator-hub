@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          kind: string
           position: number
           title: string
           url: string
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          kind?: string
           position?: number
           title: string
           url: string
@@ -34,6 +36,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          kind?: string
           position?: number
           title?: string
           url?: string
@@ -48,6 +51,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -100,6 +124,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          is_pro: boolean
           updated_at: string
           username: string
         }
@@ -109,6 +134,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id: string
+          is_pro?: boolean
           updated_at?: string
           username: string
         }
@@ -118,6 +144,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          is_pro?: boolean
           updated_at?: string
           username?: string
         }
