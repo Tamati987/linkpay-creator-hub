@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Check, Crown, ExternalLink, Eye, Image as ImageIcon, Lock, LogOut,
-  Pencil, PlayCircle, Plus, ShareIcon, Sparkles, Trash2, Upload, Wallet, X,
+  Pencil, PlayCircle, Plus, RefreshCw, Sparkles, Trash2, Upload, Wallet, X,
   Mail, Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,7 +161,7 @@ function DashboardPage() {
               onClick={togglePro}
               className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium hover:bg-surface-elevated"
             >
-              <ShareIcon className="h-3.5 w-3.5" />
+              <RefreshCw className="h-3.5 w-3.5" />
               {profile.is_pro ? "Repasser en Gratuit" : "Activer le mode Pro"}
             </button>
           </div>
