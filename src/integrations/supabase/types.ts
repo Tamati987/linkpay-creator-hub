@@ -125,6 +125,8 @@ export type Database = {
           display_name: string
           id: string
           is_pro: boolean
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           username: string
         }
@@ -135,6 +137,8 @@ export type Database = {
           display_name?: string
           id: string
           is_pro?: boolean
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           username: string
         }
@@ -145,6 +149,8 @@ export type Database = {
           display_name?: string
           id?: string
           is_pro?: boolean
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           username?: string
         }
@@ -191,6 +197,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_logs: {
+        Row: {
+          amount_cents: number
+          buyer_email: string | null
+          created_at: string
+          currency: string
+          id: string
+          product_id: string | null
+          seller_id: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          stripe_subscription_id: string | null
+          type: string
+        }
+        Insert: {
+          amount_cents?: number
+          buyer_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id?: string | null
+          seller_id: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          type: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_email?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id?: string | null
+          seller_id?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          type?: string
+        }
+        Relationships: []
       }
     }
     Views: {
