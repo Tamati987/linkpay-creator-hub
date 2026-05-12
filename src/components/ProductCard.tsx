@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Download, ShoppingBag } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { ShoppingBag } from "lucide-react";
+import { createProductCheckout } from "@/lib/stripe.functions";
 
 type Product = {
   id: string;
@@ -19,33 +20,32 @@ const formatPrice = (cents: number) =>
 
 export function ProductCard({
   product,
-  sellerId,
+  sellerId: _sellerId,
 }: {
   product: Product;
   sellerId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const startCheckout = useServerFn(createProductCheckout);
 
   const buy = async () => {
-    if (!email) return;
+    if (!email || !accepted) return;
     setLoading(true);
-    const { error } = await supabase.from("purchases").insert({
-      product_id: product.id,
-      seller_id: sellerId,
-      buyer_email: email,
-      amount_cents: product.price_cents,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const { url } = await startCheckout({
+        data: { productId: product.id, email, acceptedRetraction: true },
+      });
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors du paiement");
+    } finally {
+      setLoading(false);
     }
-    setDone(true);
-    toast.success("Merci pour votre achat !");
   };
+
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
