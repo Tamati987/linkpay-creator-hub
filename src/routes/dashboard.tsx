@@ -7,12 +7,14 @@ import {
   Pencil, PlayCircle, Plus, RefreshCw, Sparkles, Trash2, Upload, Wallet, X,
   Mail, Users,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ProLockModal } from "@/components/ProLockModal";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
+import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -148,24 +150,8 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        {/* Demo Pro toggle */}
-        <section className="rounded-2xl border border-dashed border-border glass p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs font-medium">Démo : changer de plan</div>
-              <p className="text-xs text-muted-foreground">
-                Bascule manuellement entre Gratuit et Pro pour tester (paiement Stripe à brancher).
-              </p>
-            </div>
-            <button
-              onClick={togglePro}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium hover:bg-surface-elevated"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              {profile.is_pro ? "Repasser en Gratuit" : "Activer le mode Pro"}
-            </button>
-          </div>
-        </section>
+        <BillingSection isPro={profile.is_pro} onToggleDemo={togglePro} />
+
       </main>
 
       <ProLockModal
@@ -581,5 +567,77 @@ function ProductRowItem({
         </button>
       </div>
     </div>
+  );
+}
+
+function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo: () => void }) {
+  const startCheckout = useServerFn(createProCheckout);
+  const openPortal = useServerFn(createPortalSession);
+  const [loading, setLoading] = useState<"upgrade" | "portal" | null>(null);
+
+  const upgrade = async () => {
+    setLoading("upgrade");
+    try {
+      const { url } = await startCheckout();
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const portal = async () => {
+    setLoading("portal");
+    try {
+      const { url } = await openPortal();
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  return (
+    <section className="rounded-2xl glass p-5 shadow-soft">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold flex items-center gap-2">
+            <Crown className="h-4 w-4 text-primary" />
+            {isPro ? "Abonnement Pro actif" : "Plan Gratuit"}
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {isPro
+              ? "Gérer ou annuler votre abonnement à tout moment."
+              : "Débloquez liens & vidéos illimités, 0% de commission."}
+          </p>
+        </div>
+        {isPro ? (
+          <button
+            onClick={portal}
+            disabled={loading === "portal"}
+            className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-4 text-xs font-medium hover:bg-surface-elevated disabled:opacity-60"
+          >
+            {loading === "portal" ? "Chargement…" : "Gérer l'abonnement"}
+          </button>
+        ) : (
+          <button
+            onClick={upgrade}
+            disabled={loading === "upgrade"}
+            className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
+          >
+            <Crown className="h-3.5 w-3.5" />
+            {loading === "upgrade" ? "Redirection…" : "Passer à Pro — 9$/mois"}
+          </button>
+        )}
+      </div>
+      <button
+        onClick={onToggleDemo}
+        className="mt-3 text-[11px] text-muted-foreground/70 hover:text-muted-foreground underline"
+      >
+        Démo : basculer Pro/Gratuit (sans paiement)
+      </button>
+    </section>
   );
 }

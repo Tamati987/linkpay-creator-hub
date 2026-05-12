@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   Check, Sparkles, X, ArrowLeft, ShoppingBag, PlayCircle, Mail,
   Globe, EyeOff, BellRing, Crown, BarChart3,
 } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
-
-const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_placeholder";
+import { createProCheckout } from "@/lib/stripe.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -27,6 +30,27 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
+  const startCheckout = useServerFn(createProCheckout);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const goPro = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate({ to: "/login" });
+        return;
+      }
+      const { url } = await startCheckout();
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors du paiement");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-border glass">
@@ -133,14 +157,13 @@ function PricingPage() {
               <Feature included>Support prioritaire</Feature>
             </ul>
 
-            <a
-              href={STRIPE_CHECKOUT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-button px-5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.01] hover:opacity-95 active:scale-[0.99]"
+            <button
+              onClick={goPro}
+              disabled={loading}
+              className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-button px-5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.01] hover:opacity-95 active:scale-[0.99] disabled:opacity-60"
             >
-              <Crown className="h-4 w-4" /> Passer à Zeno Pro
-            </a>
+              <Crown className="h-4 w-4" /> {loading ? "Redirection…" : "Passer à Zeno Pro"}
+            </button>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
               Annulable à tout moment. Sans engagement.
             </p>

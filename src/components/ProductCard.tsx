@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Download, ShoppingBag } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { ShoppingBag } from "lucide-react";
+import { createProductCheckout } from "@/lib/stripe.functions";
 
 type Product = {
   id: string;
@@ -19,33 +20,32 @@ const formatPrice = (cents: number) =>
 
 export function ProductCard({
   product,
-  sellerId,
+  sellerId: _sellerId,
 }: {
   product: Product;
   sellerId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const startCheckout = useServerFn(createProductCheckout);
 
   const buy = async () => {
-    if (!email) return;
+    if (!email || !accepted) return;
     setLoading(true);
-    const { error } = await supabase.from("purchases").insert({
-      product_id: product.id,
-      seller_id: sellerId,
-      buyer_email: email,
-      amount_cents: product.price_cents,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const { url } = await startCheckout({
+        data: { productId: product.id, email, acceptedRetraction: true },
+      });
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur lors du paiement");
+    } finally {
+      setLoading(false);
     }
-    setDone(true);
-    toast.success("Merci pour votre achat !");
   };
+
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
@@ -90,38 +90,39 @@ export function ProductCard({
             </p>
           )}
 
-          {done ? (
-            <div className="rounded-xl border border-border bg-card p-3 text-sm">
-              <div className="flex items-center gap-2 font-medium">
-                <Download className="h-4 w-4" /> Achat confirmé
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Un email avec le lien de téléchargement vous sera envoyé.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <input
+              type="email"
+              placeholder="Votre email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+            <label className="flex items-start gap-2 px-1 text-[11px] text-muted-foreground">
               <input
-                type="email"
-                placeholder="Votre email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+                className="mt-0.5 h-3.5 w-3.5 rounded border-border accent-primary"
               />
-              <button
-                onClick={buy}
-                disabled={loading || !email}
-                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-gradient-button text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60"
-              >
-                {loading
-                  ? "Traitement…"
-                  : `Acheter — ${formatPrice(product.price_cents)}`}
-              </button>
-              <p className="text-center text-[11px] text-muted-foreground">
-                Démo : aucun paiement réel n'est traité.
-              </p>
-            </div>
-          )}
+              <span>
+                Je renonce expressément à mon droit de rétractation de 14 jours,
+                le contenu numérique étant fourni immédiatement après paiement.
+              </span>
+            </label>
+            <button
+              onClick={buy}
+              disabled={loading || !email || !accepted}
+              className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-gradient-button text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60"
+            >
+              {loading
+                ? "Redirection…"
+                : `Acheter — ${formatPrice(product.price_cents)}`}
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              Paiement sécurisé par Stripe.
+            </p>
+          </div>
         </div>
       )}
     </div>
