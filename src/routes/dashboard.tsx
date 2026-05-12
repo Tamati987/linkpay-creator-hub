@@ -7,12 +7,14 @@ import {
   Pencil, PlayCircle, Plus, RefreshCw, Sparkles, Trash2, Upload, Wallet, X,
   Mail, Users,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ProLockModal } from "@/components/ProLockModal";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
+import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
