@@ -148,24 +148,8 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        {/* Demo Pro toggle */}
-        <section className="rounded-2xl border border-dashed border-border glass p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs font-medium">Démo : changer de plan</div>
-              <p className="text-xs text-muted-foreground">
-                Bascule manuellement entre Gratuit et Pro pour tester (paiement Stripe à brancher).
-              </p>
-            </div>
-            <button
-              onClick={togglePro}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium hover:bg-surface-elevated"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              {profile.is_pro ? "Repasser en Gratuit" : "Activer le mode Pro"}
-            </button>
-          </div>
-        </section>
+        <BillingSection isPro={profile.is_pro} onToggleDemo={togglePro} />
+
       </main>
 
       <ProLockModal
