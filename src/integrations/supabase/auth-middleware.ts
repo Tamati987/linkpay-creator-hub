@@ -3,10 +3,13 @@ import { createMiddleware } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
+import { attachSupabaseAuth } from './auth-client-middleware'
 
 
 
-export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
+export const requireSupabaseAuth = createMiddleware({ type: 'function' })
+  .middleware([attachSupabaseAuth])
+  .server(
   async ({ next }) => {
     
     const SUPABASE_URL = process.env.SUPABASE_URL;
