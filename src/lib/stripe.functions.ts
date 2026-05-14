@@ -12,7 +12,7 @@ function getOrigin() {
 export const createProCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const stripe = getStripe();
+    const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
     const priceId = process.env.STRIPE_PRO_PRICE_ID;
     if (!priceId) throw new Error("STRIPE_PRO_PRICE_ID missing");
 
@@ -53,7 +53,7 @@ export const createProCheckout = createServerFn({ method: "POST" })
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const stripe = getStripe();
+    const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
     const { userId } = context;
     const { data: profile } = await supabaseAdmin
       .from("profiles")
@@ -81,7 +81,7 @@ export const createProductCheckout = createServerFn({ method: "POST" })
     }).parse,
   )
   .handler(async ({ data }) => {
-    const stripe = getStripe();
+    const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
