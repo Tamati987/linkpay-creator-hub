@@ -27,11 +27,10 @@ export const createProCheckout = createServerFn({ method: "POST" })
     const { data: userResp } = await supabaseAdmin.auth.admin.getUserById(userId);
     const email = userResp.user?.email;
 
-    let customerId = profile?.stripe_customer_id ?? undefined;
-    if (!customerId && email) {
-      const existing = await stripe.customers.list({ email, limit: 1 });
-      if (existing.data[0]) customerId = existing.data[0].id;
-    }
+    // Skip stripe.customers.list (slow extra round-trip). If we don't have a
+    // stored customer_id, pass customer_email and let Stripe handle it; the
+    // webhook will persist the resulting customer_id back to the profile.
+    const customerId = profile?.stripe_customer_id ?? undefined;
 
     const origin = getOrigin();
     const session = await stripe.checkout.sessions.create({
