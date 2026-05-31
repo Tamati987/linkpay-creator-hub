@@ -234,9 +234,11 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
       .upload(path, file, { upsert: true, cacheControl: "3600", contentType: file.type });
     if (error) { setUploading(null); return toast.error(`Upload : ${error.message}`); }
     const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const column = kind === "avatar" ? "avatar_url" : "cover_url";
+    const patch = kind === "avatar"
+      ? { avatar_url: pub.publicUrl }
+      : { cover_url: pub.publicUrl };
     const { error: e2 } = await supabase.from("profiles")
-      .update({ [column]: pub.publicUrl }).eq("id", profile.id);
+      .update(patch).eq("id", profile.id);
     setUploading(null);
     if (e2) return toast.error(e2.message);
     toast.success(kind === "avatar" ? "Photo mise à jour" : "Couverture mise à jour");
