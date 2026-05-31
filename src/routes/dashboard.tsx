@@ -575,7 +575,9 @@ function ProductRowItem({
   );
 }
 
-function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo: () => void }) {
+function BillingSection({
+  isPro, hasSubscription, onToggleDemo,
+}: { isPro: boolean; hasSubscription: boolean; onToggleDemo: () => void }) {
   const startCheckout = useServerFn(createProCheckout);
   const openPortal = useServerFn(createPortalSession);
   const [loading, setLoading] = useState<"upgrade" | "portal" | null>(null);
@@ -625,7 +627,7 @@ function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo:
               : "Débloquez liens & vidéos illimités, 0% de commission."}
           </p>
         </div>
-        {isPro ? (
+        {isPro && hasSubscription ? (
           <button
             onClick={portal}
             disabled={loading === "portal"}
@@ -640,7 +642,7 @@ function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo:
             className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
           >
             <Crown className="h-3.5 w-3.5" />
-            {loading === "upgrade" ? "Redirection…" : "Passer à Pro — 9$/mois"}
+            {loading === "upgrade" ? "Redirection…" : isPro ? "Activer le paiement Pro" : "Passer à Pro — 9$/mois"}
           </button>
         )}
       </div>
