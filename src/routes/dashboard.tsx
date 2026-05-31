@@ -26,6 +26,7 @@ const FREE_VIDEO_LIMIT = 1;
 type Profile = {
   id: string; username: string; display_name: string;
   bio: string; avatar_url: string | null; is_pro: boolean;
+  stripe_customer_id: string | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
@@ -150,7 +151,11 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        <BillingSection isPro={profile.is_pro} onToggleDemo={togglePro} />
+        <BillingSection
+          isPro={profile.is_pro}
+          hasSubscription={!!profile.stripe_customer_id}
+          onToggleDemo={togglePro}
+        />
 
       </main>
 
