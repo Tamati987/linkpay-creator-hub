@@ -1,0 +1,1 @@
+UPDATE public.profiles SET is_pro = true, updated_at = now() WHERE username = 'tamati';
