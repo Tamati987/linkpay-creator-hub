@@ -197,21 +197,49 @@ function PublicProfile() {
                 {websites.length > 0 && (
                   <div className="space-y-3">
                     <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Sites internet</p>
-                    {websites.map((l) => (
-                      <a
-                        key={l.id}
-                        href={l.url}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="group flex items-center gap-3 rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
-                      >
-                        <span className="grid h-8 w-8 place-items-center rounded-md bg-surface-elevated text-primary">
-                          <Globe className="h-4 w-4" />
-                        </span>
-                        <span className="flex-1">{l.title}</span>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
-                      </a>
-                    ))}
+                    {websites.map((l) =>
+                      profile.is_pro ? (
+                        <div
+                          key={l.id}
+                          className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft"
+                        >
+                          <div className="flex items-center gap-2 border-b border-border bg-surface-elevated px-3 py-2 text-xs">
+                            <Globe className="h-3.5 w-3.5 text-primary" />
+                            <span className="flex-1 truncate font-medium">{l.title}</span>
+                            <a
+                              href={l.url}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="inline-flex items-center gap-1 text-muted-foreground transition hover:text-foreground"
+                            >
+                              Ouvrir <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                          <iframe
+                            src={l.url}
+                            title={l.title}
+                            loading="lazy"
+                            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                            referrerPolicy="no-referrer"
+                            className="h-[420px] w-full bg-background"
+                          />
+                        </div>
+                      ) : (
+                        <a
+                          key={l.id}
+                          href={l.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="group flex items-center gap-3 rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
+                        >
+                          <span className="grid h-8 w-8 place-items-center rounded-md bg-surface-elevated text-primary">
+                            <Globe className="h-4 w-4" />
+                          </span>
+                          <span className="flex-1">{l.title}</span>
+                          <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
+                        </a>
+                      ),
+                    )}
                   </div>
                 )}
               </>
