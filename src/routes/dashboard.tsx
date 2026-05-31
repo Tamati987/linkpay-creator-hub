@@ -142,7 +142,9 @@ function DashboardPage() {
           <Stat label="Gains" value={formatPrice(earningsCents)} icon={<Wallet className="h-4 w-4" />} />
           <Stat label="Ventes" value={salesCount.toString()} />
           <Stat label="Abonnés" value={subscribersCount.toString()} icon={<Users className="h-4 w-4" />} />
-          <Stat label="Lien public" value={`zeno/${profile.username}`} mono />
+          <Link to="/$username" params={{ username: profile.username }} className="block">
+            <Stat label="Lien public" value={`zeno/${profile.username}`} mono />
+          </Link>
         </div>
 
         <ProfileSection profile={profile} onSaved={refresh} />
