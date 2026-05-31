@@ -1,12 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ExternalLink, LayoutDashboard, Sparkles } from "lucide-react";
+import { ExternalLink, Globe, LayoutDashboard, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { detectVideo } from "@/lib/video";
+import { detectSocialBrand } from "@/lib/social";
 
 export const Route = createFileRoute("/$username")({
   component: PublicProfile,
