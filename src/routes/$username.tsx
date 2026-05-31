@@ -26,7 +26,7 @@ type Profile = {
 async function fetchProfile(username: string) {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, username, display_name, bio, avatar_url, is_pro")
+    .select("id, username, display_name, bio, avatar_url, cover_url, is_pro")
     .eq("username", username)
     .maybeSingle();
   if (error) throw error;
