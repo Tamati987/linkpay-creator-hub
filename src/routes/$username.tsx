@@ -98,6 +98,8 @@ function PublicProfile() {
   const initials = (profile.display_name || profile.username)
     .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
+  const isOwner = currentUserId === profile.id;
+
   return (
     <div className="min-h-screen px-5 pb-16 pt-12">
       <div className="mx-auto max-w-md">
@@ -119,6 +121,15 @@ function PublicProfile() {
           <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio && (
             <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
+          )}
+          {isOwner && (
+            <Link
+              to="/dashboard"
+              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              Dashboard
+            </Link>
           )}
         </div>
 
