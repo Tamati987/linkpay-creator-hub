@@ -134,27 +134,81 @@ function PublicProfile() {
           )}
         </div>
 
-        <div className="mt-8 space-y-3">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} sellerId={profile.id} />
-          ))}
+        <div className="mt-8 space-y-6">
+          {products.length > 0 && (
+            <div className="space-y-3">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} sellerId={profile.id} />
+              ))}
+            </div>
+          )}
 
-          {links.map((l) => {
-            const video = profile.is_pro ? detectVideo(l.url) : null;
-            if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
+          {(() => {
+            const socials = links.filter((l) => l.kind === "social");
+            const videos = links.filter((l) => l.kind === "video");
+            const websites = links.filter((l) => l.kind === "standard");
+
             return (
-              <a
-                key={l.id}
-                href={l.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="group flex items-center justify-between rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
-              >
-                <span>{l.title}</span>
-                <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
-              </a>
+              <>
+                {socials.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">Réseaux sociaux</p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {socials.map((l) => {
+                        const brand = detectSocialBrand(l.url);
+                        const Icon = brand?.Icon;
+                        return (
+                          <a
+                            key={l.id}
+                            href={l.url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            aria-label={brand?.label ?? l.title}
+                            title={l.title}
+                            className="grid h-12 w-12 place-items-center rounded-full border border-border bg-surface shadow-soft transition hover:scale-105 hover:bg-surface-elevated"
+                            style={brand ? { color: brand.color } : undefined}
+                          >
+                            {Icon ? <Icon className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {videos.length > 0 && profile.is_pro && (
+                  <div className="space-y-3">
+                    {videos.map((l) => {
+                      const video = detectVideo(l.url);
+                      if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
+                      return null;
+                    })}
+                  </div>
+                )}
+
+                {websites.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Sites internet</p>
+                    {websites.map((l) => (
+                      <a
+                        key={l.id}
+                        href={l.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="group flex items-center gap-3 rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
+                      >
+                        <span className="grid h-8 w-8 place-items-center rounded-md bg-surface-elevated text-primary">
+                          <Globe className="h-4 w-4" />
+                        </span>
+                        <span className="flex-1">{l.title}</span>
+                        <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </>
             );
-          })}
+          })()}
 
           {profile.is_pro && <NewsletterBlock userId={profile.id} />}
 
