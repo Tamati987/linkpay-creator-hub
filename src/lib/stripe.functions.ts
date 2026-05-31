@@ -16,16 +16,14 @@ export const createProCheckout = createServerFn({ method: "POST" })
     const priceId = process.env.STRIPE_PRO_PRICE_ID;
     if (!priceId) throw new Error("STRIPE_PRO_PRICE_ID missing");
 
-    const { userId } = context;
+    const { userId, claims } = context;
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, username")
+      .select("stripe_customer_id")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
-    // Get email
-    const { data: userResp } = await supabaseAdmin.auth.admin.getUserById(userId);
-    const email = userResp.user?.email;
+    const email = typeof claims.email === "string" ? claims.email : undefined;
 
     // Skip stripe.customers.list (slow extra round-trip). If we don't have a
     // stored customer_id, pass customer_email and let Stripe handle it; the
