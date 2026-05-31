@@ -12,7 +12,7 @@ export function detectVideo(url: string): VideoEmbed | null {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./, "");
 
-    // YouTube
+    // YouTube — only specific videos / shorts, not channel/profile pages
     if (host === "youtube.com" || host === "m.youtube.com") {
       const id = u.searchParams.get("v");
       if (id) return { provider: "youtube", src: `https://www.youtube.com/embed/${id}`, aspect: "16/9" };
@@ -20,36 +20,39 @@ export function detectVideo(url: string): VideoEmbed | null {
         const sid = u.pathname.split("/")[2];
         if (sid) return { provider: "youtube", src: `https://www.youtube.com/embed/${sid}`, aspect: "9/16" };
       }
+      if (u.pathname.startsWith("/embed/")) {
+        const eid = u.pathname.split("/")[2];
+        if (eid) return { provider: "youtube", src: `https://www.youtube.com/embed/${eid}`, aspect: "16/9" };
+      }
     }
     if (host === "youtu.be") {
       const id = u.pathname.slice(1);
       if (id) return { provider: "youtube", src: `https://www.youtube.com/embed/${id}`, aspect: "16/9" };
     }
 
-    // Vimeo
+    // Vimeo — only numeric video ids, not user profiles
     if (host === "vimeo.com" || host === "player.vimeo.com") {
       const id = u.pathname.split("/").filter(Boolean).pop();
       if (id && /^\d+$/.test(id)) return { provider: "vimeo", src: `https://player.vimeo.com/video/${id}`, aspect: "16/9" };
     }
 
-    // TikTok
+    // TikTok — only /video/<id>, not user profiles (/@user)
     if (host.endsWith("tiktok.com")) {
       const parts = u.pathname.split("/").filter(Boolean);
       const videoIdx = parts.indexOf("video");
-      const id = videoIdx >= 0 ? parts[videoIdx + 1] : parts[parts.length - 1];
-      if (id && /^\d+$/.test(id))
-        return { provider: "tiktok", src: `https://www.tiktok.com/embed/v2/${id}`, aspect: "9/16" };
+      if (videoIdx >= 0) {
+        const id = parts[videoIdx + 1];
+        if (id && /^\d+$/.test(id))
+          return { provider: "tiktok", src: `https://www.tiktok.com/embed/v2/${id}`, aspect: "9/16" };
+      }
     }
 
-    // Twitch
+    // Twitch — only specific videos / clips, not channel pages (those are social profiles)
     if (host === "twitch.tv" || host === "www.twitch.tv") {
       const parent = typeof window !== "undefined" ? window.location.hostname : "localhost";
       const segs = u.pathname.split("/").filter(Boolean);
       if (segs[0] === "videos" && segs[1]) {
         return { provider: "twitch", src: `https://player.twitch.tv/?video=${segs[1]}&parent=${parent}`, aspect: "16/9" };
-      }
-      if (segs[0] && segs.length === 1) {
-        return { provider: "twitch", src: `https://player.twitch.tv/?channel=${segs[0]}&parent=${parent}`, aspect: "16/9" };
       }
     }
     if (host === "clips.twitch.tv") {
@@ -65,7 +68,11 @@ export function detectVideo(url: string): VideoEmbed | null {
 
 export const SOCIAL_HOSTS = [
   "facebook.com", "fb.com", "instagram.com", "x.com", "twitter.com",
-  "linkedin.com", "pinterest.com", "snapchat.com", "threads.net",
+  "linkedin.com", "pinterest.com", "pinterest.fr", "snapchat.com",
+  "threads.net", "threads.com", "tiktok.com", "youtube.com", "youtu.be",
+  "twitch.tv", "vimeo.com", "github.com", "discord.com", "discord.gg",
+  "t.me", "telegram.org", "whatsapp.com", "wa.me", "reddit.com",
+  "spotify.com", "soundcloud.com",
 ];
 
 export function isSocialUrl(url: string) {
@@ -82,7 +89,9 @@ export function isVideoUrl(url: string) {
 }
 
 export function inferLinkKind(url: string): "standard" | "social" | "video" {
+  // A specific video URL takes priority (players render in the videos section).
   if (isVideoUrl(url)) return "video";
+  // Otherwise, profile/channel pages of known networks are social.
   if (isSocialUrl(url)) return "social";
   return "standard";
 }
