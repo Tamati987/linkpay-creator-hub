@@ -26,6 +26,7 @@ const FREE_VIDEO_LIMIT = 1;
 type Profile = {
   id: string; username: string; display_name: string;
   bio: string; avatar_url: string | null; is_pro: boolean;
+  stripe_customer_id: string | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
@@ -150,7 +151,11 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        <BillingSection isPro={profile.is_pro} onToggleDemo={togglePro} />
+        <BillingSection
+          isPro={profile.is_pro}
+          hasSubscription={!!profile.stripe_customer_id}
+          onToggleDemo={togglePro}
+        />
 
       </main>
 
@@ -570,17 +575,26 @@ function ProductRowItem({
   );
 }
 
-function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo: () => void }) {
+function BillingSection({
+  isPro, hasSubscription, onToggleDemo,
+}: { isPro: boolean; hasSubscription: boolean; onToggleDemo: () => void }) {
   const startCheckout = useServerFn(createProCheckout);
   const openPortal = useServerFn(createPortalSession);
   const [loading, setLoading] = useState<"upgrade" | "portal" | null>(null);
 
   const upgrade = async () => {
     setLoading("upgrade");
+    const checkoutWindow = window.open("", "_blank");
     try {
       const { url } = await startCheckout();
-      if (url) window.location.href = url;
+      if (url) {
+        if (checkoutWindow) checkoutWindow.location.href = url;
+        else window.location.href = url;
+      } else {
+        checkoutWindow?.close();
+      }
     } catch (e: any) {
+      checkoutWindow?.close();
       toast.error(e?.message || "Erreur");
     } finally {
       setLoading(null);
@@ -613,7 +627,7 @@ function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo:
               : "Débloquez liens & vidéos illimités, 0% de commission."}
           </p>
         </div>
-        {isPro ? (
+        {isPro && hasSubscription ? (
           <button
             onClick={portal}
             disabled={loading === "portal"}
@@ -628,7 +642,7 @@ function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo:
             className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
           >
             <Crown className="h-3.5 w-3.5" />
-            {loading === "upgrade" ? "Redirection…" : "Passer à Pro — 9$/mois"}
+            {loading === "upgrade" ? "Redirection…" : isPro ? "Activer le paiement Pro" : "Passer à Pro — 9$/mois"}
           </button>
         )}
       </div>

@@ -36,15 +36,23 @@ function PricingPage() {
 
   const goPro = async () => {
     setLoading(true);
+    const checkoutWindow = window.open("", "_blank");
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        checkoutWindow?.close();
         navigate({ to: "/login" });
         return;
       }
       const { url } = await startCheckout();
-      if (url) window.location.href = url;
+      if (url) {
+        if (checkoutWindow) checkoutWindow.location.href = url;
+        else window.location.href = url;
+      } else {
+        checkoutWindow?.close();
+      }
     } catch (e: any) {
+      checkoutWindow?.close();
       toast.error(e?.message || "Erreur lors du paiement");
     } finally {
       setLoading(false);
