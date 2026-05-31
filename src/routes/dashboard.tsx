@@ -310,24 +310,31 @@ function LinksSection({
     }>
       <div className="space-y-2">
         {sectionLinks.map((l) => (
-          <div key={l.id} className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2">
-            <KindBadge kind={l.kind} url={l.url} />
-            <div className="flex-1 px-1 text-sm">
-              <div className="font-medium">{l.title}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <ExternalLink className="h-3 w-3" />
-                <span className="truncate">{l.url}</span>
+          <div key={l.id} className="rounded-lg border border-border bg-surface p-2">
+            <div className="flex items-center gap-2">
+              <KindBadge kind={l.kind} url={l.url} />
+              <div className="flex-1 px-1 text-sm">
+                <div className="font-medium">{l.title}</div>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <ExternalLink className="h-3 w-3" />
+                  <span className="truncate">{l.url}</span>
+                </div>
               </div>
+              <button onClick={() => remove(l.id)}
+                className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive">
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
-            <button onClick={() => remove(l.id)}
-              className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive">
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {l.kind === "video" && isVideoUrl(l.url) && (
+              <div className="mt-2">
+                <VideoEmbed url={l.url} />
+              </div>
+            )}
           </div>
         ))}
         {sectionLinks.length === 0 && (
           <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
-            Ajoutez votre Instagram, Facebook, YouTube, TikTok, X, LinkedIn…
+            Ajoutez votre Instagram, Facebook, YouTube, TikTok, Twitch, X, LinkedIn…
           </p>
         )}
       </div>
