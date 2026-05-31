@@ -54,6 +54,14 @@ async function fetchProfile(username: string) {
 
 function PublicProfile() {
   const { username } = Route.useParams();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+  }, []);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["profile", username],
     queryFn: () => fetchProfile(username),
