@@ -150,6 +150,11 @@ function DashboardPage() {
           onChanged={refresh}
           onLocked={setLockedFeature}
         />
+        <WebsitesSection
+          userId={user.id}
+          links={links}
+          onChanged={refresh}
+        />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
         <BillingSection
