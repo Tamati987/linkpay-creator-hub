@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getStripe } from "./stripe.server";
 import { MIN_PRODUCT_PRICE_CENTS } from "./plans";
+import { AVATAR_PRICE_CENTS, getAvatar } from "./avatars";
 
 function getOrigin() {
   return process.env.PUBLIC_APP_URL || "http://localhost:8080";
@@ -125,6 +126,57 @@ export const createProductCheckout = createServerFn({ method: "POST" })
       },
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout/cancel`,
+    });
+
+    return { url: session.url };
+  });
+
+export const createAvatarCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ avatarId: z.string().min(1).max(50) }).parse)
+  .handler(async ({ data, context }) => {
+    const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
+    const { userId, claims } = context;
+
+    const avatar = getAvatar(data.avatarId);
+    if (!avatar || !avatar.premium) throw new Error("Avatar invalide");
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("purchased_avatars, stripe_customer_id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profile?.purchased_avatars?.includes(data.avatarId)) {
+      throw new Error("Avatar déjà débloqué");
+    }
+
+    const email = typeof claims.email === "string" ? claims.email : undefined;
+    const origin = getOrigin();
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer: profile?.stripe_customer_id ?? undefined,
+      customer_email: profile?.stripe_customer_id ? undefined : email,
+      line_items: [{
+        quantity: 1,
+        price_data: {
+          currency: "usd",
+          unit_amount: AVATAR_PRICE_CENTS,
+          product_data: {
+            name: `Avatar premium Zeno`,
+            description: `Débloque l'avatar ${data.avatarId}`,
+            images: [avatar.url],
+          },
+        },
+      }],
+      client_reference_id: userId,
+      metadata: { user_id: userId, kind: "avatar_purchase", avatar_id: data.avatarId },
+      payment_intent_data: {
+        metadata: { user_id: userId, kind: "avatar_purchase", avatar_id: data.avatarId },
+      },
+      success_url: `${origin}/dashboard?avatar=success`,
+      cancel_url: `${origin}/dashboard?avatar=cancel`,
     });
 
     return { url: session.url };

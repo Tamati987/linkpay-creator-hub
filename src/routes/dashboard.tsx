@@ -16,6 +16,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
+import { AvatarPicker } from "@/components/AvatarPicker";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -28,6 +29,8 @@ type Profile = {
   id: string; username: string; display_name: string;
   bio: string; avatar_url: string | null; is_pro: boolean;
   stripe_customer_id: string | null;
+  cover_url: string | null;
+  purchased_avatars: string[] | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
@@ -199,7 +202,8 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [bio, setBio] = useState(profile.bio);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const save = async () => {
     setSaving(true);
@@ -212,22 +216,78 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
     onSaved();
   };
 
-  const onAvatar = async (file: File) => {
-    setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${profile.id}/avatar-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, cacheControl: "3600" });
-    if (error) { setUploading(false); return toast.error(error.message); }
+  const uploadImage = async (
+    file: File,
+    kind: "avatar" | "cover",
+  ) => {
+    if (!file.type.startsWith("image/")) {
+      return toast.error("Choisissez un fichier image (JPG, PNG, WebP…)");
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      return toast.error("Image trop lourde (max 8 Mo). Compressez-la et réessayez.");
+    }
+    setUploading(kind);
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `${profile.id}/${kind}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, cacheControl: "3600", contentType: file.type });
+    if (error) { setUploading(null); return toast.error(`Upload : ${error.message}`); }
     const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const { error: e2 } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("id", profile.id);
-    setUploading(false);
+    const patch = kind === "avatar"
+      ? { avatar_url: pub.publicUrl }
+      : { cover_url: pub.publicUrl };
+    const { error: e2 } = await supabase.from("profiles")
+      .update(patch).eq("id", profile.id);
+    setUploading(null);
     if (e2) return toast.error(e2.message);
-    toast.success("Photo mise à jour");
+    toast.success(kind === "avatar" ? "Photo mise à jour" : "Couverture mise à jour");
+    onSaved();
+  };
+
+  const removeCover = async () => {
+    const { error } = await supabase.from("profiles").update({ cover_url: null }).eq("id", profile.id);
+    if (error) return toast.error(error.message);
+    toast.success("Couverture retirée");
     onSaved();
   };
 
   return (
     <Card title="Profil">
+      {/* Cover */}
+      <div className="relative mb-4 h-32 overflow-hidden rounded-xl border border-border bg-surface-elevated">
+        {profile.cover_url ? (
+          <img src={profile.cover_url} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full place-items-center text-xs text-muted-foreground">
+            {profile.is_pro ? "Aucune photo de couverture" : "Photo de couverture réservée aux abonnés Pro"}
+          </div>
+        )}
+        <div className="absolute right-2 top-2 flex gap-2">
+          {profile.cover_url && profile.is_pro && (
+            <button
+              onClick={removeCover}
+              className="inline-flex h-8 items-center gap-1 rounded-md bg-background/80 px-2 text-[11px] backdrop-blur hover:bg-background"
+            >
+              <Trash2 className="h-3 w-3" /> Retirer
+            </button>
+          )}
+          {profile.is_pro ? (
+            <label className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md bg-background/80 px-2 text-[11px] backdrop-blur hover:bg-background">
+              <Upload className="h-3 w-3" />
+              {uploading === "cover" ? "Envoi…" : profile.cover_url ? "Changer" : "Ajouter une couverture"}
+              <input type="file" accept="image/*" hidden disabled={uploading !== null}
+                onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "cover")} />
+            </label>
+          ) : (
+            <Link to="/pricing"
+              className="inline-flex h-8 items-center gap-1 rounded-md bg-gradient-button px-2 text-[11px] font-medium text-primary-foreground shadow-glow">
+              <Crown className="h-3 w-3" /> Pro
+            </Link>
+          )}
+        </div>
+      </div>
+
       <div className="flex items-start gap-4">
         <div className="relative">
           {profile.avatar_url ? (
@@ -237,13 +297,25 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
               {profile.username.slice(0, 2).toUpperCase()}
             </div>
           )}
-          <label className="absolute -bottom-1 -right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-gradient-button shadow-glow">
-            <Upload className="h-3.5 w-3.5 text-primary-foreground" />
-            <input type="file" accept="image/*" hidden disabled={uploading}
-              onChange={(e) => e.target.files?.[0] && onAvatar(e.target.files[0])} />
+          <label className="absolute -bottom-1 -right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-gradient-button shadow-glow"
+            title="Uploader une photo">
+            {uploading === "avatar"
+              ? <span className="text-[9px] text-primary-foreground">…</span>
+              : <Upload className="h-3.5 w-3.5 text-primary-foreground" />}
+            <input type="file" accept="image/*" hidden disabled={uploading !== null}
+              onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "avatar")} />
           </label>
         </div>
         <div className="flex-1 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setPickerOpen(true)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-xs font-medium hover:bg-surface-elevated">
+              <ImageIcon className="h-3.5 w-3.5" /> Choisir un avatar
+            </button>
+            <span className="self-center text-[11px] text-muted-foreground">
+              2 gratuits · 20 premium à 1 $
+            </span>
+          </div>
           <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nom affiché"
             className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
           <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Votre bio (1-2 phrases)" rows={2}
@@ -254,6 +326,15 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
           </button>
         </div>
       </div>
+
+      <AvatarPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        userId={profile.id}
+        currentUrl={profile.avatar_url}
+        ownedAvatarIds={profile.purchased_avatars ?? []}
+        onSaved={onSaved}
+      />
     </Card>
   );
 }

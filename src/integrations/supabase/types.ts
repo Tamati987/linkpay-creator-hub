@@ -121,10 +121,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string
+          cover_url: string | null
           created_at: string
           display_name: string
           id: string
           is_pro: boolean
+          purchased_avatars: string[]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string
@@ -133,10 +135,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string
+          cover_url?: string | null
           created_at?: string
           display_name?: string
           id: string
           is_pro?: boolean
+          purchased_avatars?: string[]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
@@ -145,10 +149,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string
+          cover_url?: string | null
           created_at?: string
           display_name?: string
           id?: string
           is_pro?: boolean
+          purchased_avatars?: string[]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string

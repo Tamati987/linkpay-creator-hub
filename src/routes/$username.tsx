@@ -19,13 +19,14 @@ type Profile = {
   display_name: string;
   bio: string;
   avatar_url: string | null;
+  cover_url: string | null;
   is_pro: boolean;
 };
 
 async function fetchProfile(username: string) {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, username, display_name, bio, avatar_url, is_pro")
+    .select("id, username, display_name, bio, avatar_url, cover_url, is_pro")
     .eq("username", username)
     .maybeSingle();
   if (error) throw error;
@@ -102,8 +103,14 @@ function PublicProfile() {
   const isOwner = currentUserId === profile.id;
 
   return (
-    <div className="min-h-screen px-5 pb-16 pt-12">
-      <div className="mx-auto max-w-md">
+    <div className="min-h-screen pb-16">
+      {profile.cover_url && (
+        <div className="relative h-40 w-full overflow-hidden sm:h-56">
+          <img src={profile.cover_url} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        </div>
+      )}
+      <div className={`mx-auto max-w-md px-5 ${profile.cover_url ? "-mt-12" : "pt-12"}`}>
         <div className="flex flex-col items-center text-center">
           {profile.avatar_url ? (
             <img

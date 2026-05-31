@@ -83,6 +83,19 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
                   stripe_payment_intent_id: pi.id,
                 });
               }
+              if (meta.kind === "avatar_purchase" && meta.user_id && meta.avatar_id) {
+                const { data: prof } = await supabaseAdmin
+                  .from("profiles")
+                  .select("purchased_avatars")
+                  .eq("id", meta.user_id)
+                  .maybeSingle();
+                const owned = new Set<string>(prof?.purchased_avatars ?? []);
+                owned.add(meta.avatar_id);
+                await supabaseAdmin
+                  .from("profiles")
+                  .update({ purchased_avatars: Array.from(owned) })
+                  .eq("id", meta.user_id);
+              }
               break;
             }
             case "invoice.payment_succeeded": {
