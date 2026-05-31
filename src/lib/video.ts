@@ -7,6 +7,23 @@ export type VideoEmbed = {
   aspect: "16/9" | "9/16";
 };
 
+function twitchParents(): string {
+  const hosts = new Set<string>(["localhost", "lovable.app", "lovable.dev"]);
+  if (typeof window !== "undefined") {
+    hosts.add(window.location.hostname);
+    // Add parent registrable domain too (e.g. xxx.lovable.app -> lovable.app)
+    const parts = window.location.hostname.split(".");
+    if (parts.length >= 2) hosts.add(parts.slice(-2).join("."));
+  }
+  return Array.from(hosts).map((h) => `parent=${h}`).join("&");
+}
+
+const TWITCH_RESERVED = new Set([
+  "videos", "directory", "p", "about", "subscriptions", "settings",
+  "search", "wallet", "drops", "friends", "inventory", "messages",
+  "following", "downloads", "jobs", "turbo", "prime", "store",
+]);
+
 export function detectVideo(url: string): VideoEmbed | null {
   try {
     const u = new URL(url);
@@ -47,24 +64,33 @@ export function detectVideo(url: string): VideoEmbed | null {
       }
     }
 
-    // Twitch — only specific videos / clips, not channel pages (those are social profiles)
-    if (host === "twitch.tv" || host === "www.twitch.tv") {
-      const parent = typeof window !== "undefined" ? window.location.hostname : "localhost";
+    // Twitch — VODs, clips, and live channels
+    if (host === "twitch.tv" || host === "m.twitch.tv") {
+      const parents = twitchParents();
       const segs = u.pathname.split("/").filter(Boolean);
       if (segs[0] === "videos" && segs[1]) {
-        return { provider: "twitch", src: `https://player.twitch.tv/?video=${segs[1]}&parent=${parent}`, aspect: "16/9" };
+        return { provider: "twitch", src: `https://player.twitch.tv/?video=${segs[1]}&${parents}`, aspect: "16/9" };
+      }
+      // Live channel: twitch.tv/<channel>
+      if (segs.length === 1 && !TWITCH_RESERVED.has(segs[0].toLowerCase())) {
+        return { provider: "twitch", src: `https://player.twitch.tv/?channel=${encodeURIComponent(segs[0])}&${parents}`, aspect: "16/9" };
+      }
+      // Embedded clip: twitch.tv/<channel>/clip/<id>
+      if (segs.length >= 3 && segs[1] === "clip" && segs[2]) {
+        return { provider: "twitch", src: `https://clips.twitch.tv/embed?clip=${encodeURIComponent(segs[2])}&${parents}`, aspect: "16/9" };
       }
     }
     if (host === "clips.twitch.tv") {
-      const parent = typeof window !== "undefined" ? window.location.hostname : "localhost";
+      const parents = twitchParents();
       const id = u.pathname.split("/").filter(Boolean)[0];
-      if (id) return { provider: "twitch", src: `https://clips.twitch.tv/embed?clip=${id}&parent=${parent}`, aspect: "16/9" };
+      if (id) return { provider: "twitch", src: `https://clips.twitch.tv/embed?clip=${encodeURIComponent(id)}&${parents}`, aspect: "16/9" };
     }
     return null;
   } catch {
     return null;
   }
 }
+
 
 export const SOCIAL_HOSTS = [
   "facebook.com", "fb.com", "instagram.com", "x.com", "twitter.com",
