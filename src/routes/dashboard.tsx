@@ -201,18 +201,37 @@ function Card({ title, action, children }: { title: string; action?: React.React
 function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () => void }) {
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [bio, setBio] = useState(profile.bio);
+  const [username, setUsername] = useState(profile.username);
+  const [usernameError, setUsernameError] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const validateUsername = (val: string) => {
+    if (!val) return "Nom d'utilisateur requis";
+    if (!/^[a-zA-Z0-9_]+$/.test(val)) return "Lettres, chiffres et underscores uniquement";
+    if (val.length < 2 || val.length > 30) return "Entre 2 et 30 caractères";
+    return "";
+  };
 
   const save = async () => {
+    const uErr = validateUsername(username);
+    if (uErr) { setUsernameError(uErr); return; }
+    setUsernameError("");
     setSaving(true);
     const { error } = await supabase.from("profiles")
-      .update({ display_name: displayName, bio, updated_at: new Date().toISOString() })
+      .update({ display_name: displayName, bio, username: username.toLowerCase(), updated_at: new Date().toISOString() })
       .eq("id", profile.id);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.code === "23505") return toast.error("Ce nom d'utilisateur est déjà pris.");
+      return toast.error(error.message);
+    }
     toast.success("Profil mis à jour");
+    if (username.toLowerCase() !== profile.username) {
+      navigate({ to: "/dashboard" });
+    }
     onSaved();
   };
 
