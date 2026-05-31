@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ExternalLink, LayoutDashboard, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import { VideoEmbed } from "@/components/VideoEmbed";
@@ -53,6 +54,14 @@ async function fetchProfile(username: string) {
 
 function PublicProfile() {
   const { username } = Route.useParams();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+  }, []);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["profile", username],
     queryFn: () => fetchProfile(username),
@@ -89,6 +98,8 @@ function PublicProfile() {
   const initials = (profile.display_name || profile.username)
     .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
+  const isOwner = currentUserId === profile.id;
+
   return (
     <div className="min-h-screen px-5 pb-16 pt-12">
       <div className="mx-auto max-w-md">
@@ -110,6 +121,15 @@ function PublicProfile() {
           <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio && (
             <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
+          )}
+          {isOwner && (
+            <Link
+              to="/dashboard"
+              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              Dashboard
+            </Link>
           )}
         </div>
 
