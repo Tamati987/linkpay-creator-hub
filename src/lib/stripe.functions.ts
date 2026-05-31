@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getStripe } from "./stripe.server";
 import { MIN_PRODUCT_PRICE_CENTS } from "./plans";
+import { AVATAR_PRICE_CENTS, getAvatar } from "./avatars";
 
 function getOrigin() {
   return process.env.PUBLIC_APP_URL || "http://localhost:8080";
