@@ -1,10 +1,13 @@
-import type { IconType } from "react-icons";
+import type { ComponentType, SVGProps } from "react";
 import {
-  SiInstagram, SiFacebook, SiX, SiTiktok, SiYoutube, SiLinkedin,
+  SiInstagram, SiFacebook, SiX, SiTiktok, SiYoutube,
   SiPinterest, SiSnapchat, SiThreads, SiTwitch, SiVimeo,
   SiGithub, SiDiscord, SiTelegram, SiWhatsapp, SiReddit, SiSpotify,
-  SiSoundcloud, SiTwitter,
+  SiSoundcloud,
 } from "react-icons/si";
+import { Linkedin as LuLinkedin, Twitter as LuTwitter } from "lucide-react";
+
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
 
 export type SocialBrand = {
   key: string;
