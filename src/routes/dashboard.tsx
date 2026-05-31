@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Check, Crown, ExternalLink, Eye, Image as ImageIcon, Lock, LogOut,
-  Pencil, PlayCircle, Plus, RefreshCw, Sparkles, Trash2, Upload, Wallet, X,
+  Check, Crown, ExternalLink, Eye, Globe, Image as ImageIcon, Lock, LogOut,
+  Pencil, PlayCircle, Plus, Sparkles, Trash2, Upload, Wallet, X,
   Mail, Users,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,6 +14,7 @@ import { ProLockModal } from "@/components/ProLockModal";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
+import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/dashboard")({
