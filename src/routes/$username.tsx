@@ -19,6 +19,7 @@ type Profile = {
   display_name: string;
   bio: string;
   avatar_url: string | null;
+  cover_url: string | null;
   is_pro: boolean;
 };
 
