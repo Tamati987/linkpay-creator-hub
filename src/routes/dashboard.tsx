@@ -267,19 +267,24 @@ function LinksSection({
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
 
+  // Only social + video belong to this section
+  const sectionLinks = links.filter((l) => l.kind === "social" || l.kind === "video");
   const socialCount = links.filter((l) => l.kind === "social").length;
   const videoCount = links.filter((l) => l.kind === "video").length;
 
   const detectedKind = url ? inferLinkKind(url) : "standard";
+  const isWebsite = !!url && detectedKind === "standard";
   const wouldExceedSocial = !isPro && detectedKind === "social" && socialCount >= FREE_SOCIAL_LIMIT;
   const wouldExceedVideo = !isPro && detectedKind === "video" && videoCount >= FREE_VIDEO_LIMIT;
   const blocked = wouldExceedSocial || wouldExceedVideo;
 
   const add = async () => {
     if (!title || !url) return;
+    const kind = inferLinkKind(url);
+    if (kind === "standard")
+      return toast.error("Cette URL n'est pas un réseau social ni une vidéo. Ajoutez-la dans « Sites internet ».");
     if (wouldExceedSocial) return onLocked("Liens réseaux sociaux illimités");
     if (wouldExceedVideo) return onLocked("Liens vidéo illimités");
-    const kind = inferLinkKind(url);
     const { error } = await supabase.from("links").insert({
       user_id: userId, title, url, kind, position: links.length,
     });
@@ -295,7 +300,7 @@ function LinksSection({
   };
 
   return (
-    <Card title="Liens & vidéos" action={
+    <Card title="Réseaux sociaux & vidéos" action={
       <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
         <span>Social {socialCount}{!isPro && `/${FREE_SOCIAL_LIMIT}`}</span>
         <span>•</span>
@@ -304,9 +309,9 @@ function LinksSection({
       </div>
     }>
       <div className="space-y-2">
-        {links.map((l) => (
+        {sectionLinks.map((l) => (
           <div key={l.id} className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2">
-            <KindBadge kind={l.kind} />
+            <KindBadge kind={l.kind} url={l.url} />
             <div className="flex-1 px-1 text-sm">
               <div className="font-medium">{l.title}</div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -320,9 +325,9 @@ function LinksSection({
             </button>
           </div>
         ))}
-        {links.length === 0 && (
+        {sectionLinks.length === 0 && (
           <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
-            Ajoutez votre Instagram, Facebook, YouTube, TikTok…
+            Ajoutez votre Instagram, Facebook, YouTube, TikTok, X, LinkedIn…
           </p>
         )}
       </div>
@@ -330,7 +335,7 @@ function LinksSection({
       <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre"
           className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://… (YouTube, TikTok, Instagram)"
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://… (YouTube, TikTok, Instagram, X…)"
           className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         <button onClick={add}
           className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow">
@@ -338,6 +343,12 @@ function LinksSection({
           {blocked ? "Pro requis" : "Ajouter"}
         </button>
       </div>
+
+      {isWebsite && (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          C'est un site internet — ajoutez-le dans la section « Sites internet » ci-dessous.
+        </p>
+      )}
 
       {url && isVideoUrl(url) && isPro && (
         <div className="mt-3">
@@ -358,12 +369,96 @@ function LinksSection({
   );
 }
 
-function KindBadge({ kind }: { kind: LinkRow["kind"] }) {
+function WebsitesSection({
+  userId, links, onChanged,
+}: { userId: string; links: LinkRow[]; onChanged: () => void }) {
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const websites = links.filter((l) => l.kind === "standard");
+
+  const add = async () => {
+    if (!title || !url) return;
+    try { new URL(url); } catch { return toast.error("URL invalide (commencez par https://)"); }
+    const { error } = await supabase.from("links").insert({
+      user_id: userId, title, url, kind: "standard", position: links.length,
+    });
+    if (error) return toast.error(error.message);
+    setTitle(""); setUrl("");
+    onChanged();
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("links").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    onChanged();
+  };
+
+  return (
+    <Card title="Sites internet" action={
+      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Globe className="h-3 w-3" /> {websites.length} site{websites.length > 1 ? "s" : ""}
+      </span>
+    }>
+      <div className="space-y-2">
+        {websites.map((l) => (
+          <div key={l.id} className="flex items-center gap-2 rounded-lg border border-border bg-surface p-2">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-surface-elevated text-primary">
+              <Globe className="h-4 w-4" />
+            </span>
+            <div className="flex-1 px-1 text-sm">
+              <div className="font-medium">{l.title}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <ExternalLink className="h-3 w-3" />
+                <span className="truncate">{l.url}</span>
+              </div>
+            </div>
+            <button onClick={() => remove(l.id)}
+              className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/15 hover:text-destructive">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+        {websites.length === 0 && (
+          <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+            Ajoutez l'URL de votre site web, blog ou portfolio.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nom du site"
+          className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://mon-site.com"
+          className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <button onClick={add}
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow">
+          <Plus className="h-3.5 w-3.5" /> Ajouter
+        </button>
+      </div>
+    </Card>
+  );
+}
+
+function KindBadge({ kind, url }: { kind: LinkRow["kind"]; url?: string }) {
   if (kind === "video")
     return <span className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><PlayCircle className="h-4 w-4" /></span>;
-  if (kind === "social")
+  if (kind === "social") {
+    const brand = url ? detectSocialBrand(url) : null;
+    if (brand) {
+      const Icon = brand.Icon;
+      return (
+        <span
+          className="grid h-9 w-9 place-items-center rounded-md"
+          style={{ backgroundColor: `${brand.color}1a`, color: brand.color }}
+          title={brand.label}
+        >
+          <Icon className="h-4 w-4" />
+        </span>
+      );
+    }
     return <span className="grid h-9 w-9 place-items-center rounded-md bg-accent text-foreground"><Sparkles className="h-4 w-4" /></span>;
-  return <span className="grid h-9 w-9 place-items-center rounded-md bg-surface-elevated text-muted-foreground"><ExternalLink className="h-4 w-4" /></span>;
+  }
+  return <span className="grid h-9 w-9 place-items-center rounded-md bg-surface-elevated text-muted-foreground"><Globe className="h-4 w-4" /></span>;
 }
 
 function ProductsSection({
