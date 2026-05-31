@@ -577,10 +577,17 @@ function BillingSection({ isPro, onToggleDemo }: { isPro: boolean; onToggleDemo:
 
   const upgrade = async () => {
     setLoading("upgrade");
+    const checkoutWindow = window.open("", "_blank");
     try {
       const { url } = await startCheckout();
-      if (url) window.location.href = url;
+      if (url) {
+        if (checkoutWindow) checkoutWindow.location.href = url;
+        else window.location.href = url;
+      } else {
+        checkoutWindow?.close();
+      }
     } catch (e: any) {
+      checkoutWindow?.close();
       toast.error(e?.message || "Erreur");
     } finally {
       setLoading(null);
