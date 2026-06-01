@@ -43,7 +43,7 @@ export const checkSubscription = createServerFn({ method: "POST" })
     return {
       subscribed: hasActive,
       subscription_end: sub
-        ? new Date(sub.current_period_end * 1000).toISOString()
+        ? new Date((sub as any).current_period_end * 1000).toISOString()
         : null,
     };
   });
