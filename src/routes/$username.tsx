@@ -245,7 +245,7 @@ function PublicProfile() {
 
                 {websites.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Sites internet</p>
+                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Sites internet</h2>
                     {websites.map((l) =>
                       profile.is_pro ? (
                         <div
