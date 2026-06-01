@@ -116,10 +116,10 @@ function PublicProfile() {
             <img
               src={profile.avatar_url}
               alt={profile.display_name}
-              className="h-24 w-24 rounded-full border border-border object-cover shadow-soft"
+              className="h-28 w-28 rounded-full border-[3px] border-primary/30 object-cover shadow-glow ring-4 ring-primary/10"
             />
           ) : (
-            <div className="grid h-24 w-24 place-items-center rounded-full border border-border bg-surface text-2xl font-semibold text-muted-foreground shadow-soft">
+            <div className="grid h-28 w-28 place-items-center rounded-full border-[3px] border-primary/30 bg-surface text-2xl font-semibold text-muted-foreground shadow-glow ring-4 ring-primary/10">
               {initials}
             </div>
           )}
