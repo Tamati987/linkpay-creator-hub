@@ -8,6 +8,17 @@ import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Se connecter — Zeno" },
+      { name: "description", content: "Connectez-vous à votre compte Zeno pour gérer votre page de liens, vos vidéos et vos ventes." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Se connecter — Zeno" },
+      { property: "og:description", content: "Connectez-vous à votre page Zeno." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/login" }],
+  }),
   component: LoginPage,
 });
 
