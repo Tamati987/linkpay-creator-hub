@@ -125,6 +125,7 @@ function DashboardPage() {
             </Link>
             <button
               onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+              aria-label="Se déconnecter"
               className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs text-muted-foreground transition hover:text-foreground"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -134,6 +135,7 @@ function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-4xl space-y-6 px-5 py-8">
+        <h1 className="sr-only">Dashboard</h1>
         <div className="grid gap-4 sm:grid-cols-4">
           <Stat label="Gains" value={formatPrice(earningsCents)} icon={<Wallet className="h-4 w-4" />} />
           <Stat label="Ventes" value={salesCount.toString()} />
