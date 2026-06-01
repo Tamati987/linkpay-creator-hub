@@ -144,30 +144,6 @@ function PublicProfile() {
   const { data } = useSuspenseQuery(profileQueryOptions(username));
 
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-        Chargement…
-      </div>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-6 text-center">
-        <div>
-          <h1 className="text-2xl font-semibold">Profil introuvable</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            @{username} n'a pas (encore) de page Zeno.
-          </p>
-          <Link
-            to="/"
-            className="mt-6 inline-flex h-10 items-center rounded-lg bg-gradient-button px-4 text-sm font-medium text-primary-foreground shadow-glow"
-          >
-            Créer la mienne
-          </Link>
-        </div>
-      </div>
     );
   }
 
