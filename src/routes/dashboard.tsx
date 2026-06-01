@@ -54,10 +54,37 @@ function DashboardPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [lockedFeature, setLockedFeature] = useState<string | null>(null);
+  const checkSub = useServerFn(checkSubscription);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const verify = async () => {
+      try {
+        await checkSub();
+        if (!cancelled) {
+          qc.invalidateQueries({ queryKey: ["dashboard", user.id] });
+        }
+      } catch (e) {
+        console.error("checkSubscription error", e);
+      }
+    };
+    verify();
+    return () => { cancelled = true; };
+  }, [user, checkSub, qc]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgrade") === "success") {
+      toast.success("Bienvenue dans Zeno Pro !");
+      navigate({ to: "/dashboard" });
+    }
+  }, [navigate]);
 
   const { data, isLoading } = useQuery({
     enabled: !!user,
