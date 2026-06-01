@@ -208,7 +208,7 @@ function PublicProfile() {
               <>
                 {socials.length > 0 && (
                   <div>
-                    <p className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">Réseaux sociaux</p>
+                    <h2 className="mb-2 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Réseaux sociaux</h2>
                     <div className="flex flex-wrap justify-center gap-3">
                       {socials.map((l) => {
                         const brand = detectSocialBrand(l.url);
