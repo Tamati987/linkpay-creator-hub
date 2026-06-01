@@ -490,7 +490,11 @@ function WebsitesSection({
 
   const add = async () => {
     if (!title || !url) return;
-    try { new URL(url); } catch { return toast.error("URL invalide (commencez par https://)"); }
+    let parsed: URL;
+    try { parsed = new URL(url); } catch { return toast.error("URL invalide (commencez par https://)"); }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return toast.error("Seules les URLs http(s) sont autorisées");
+    }
     const { error } = await supabase.from("links").insert({
       user_id: userId, title, url, kind: "standard", position: links.length,
     });

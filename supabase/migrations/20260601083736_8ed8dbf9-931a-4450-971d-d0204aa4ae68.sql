@@ -1,0 +1,1 @@
+ALTER TABLE public.links ADD CONSTRAINT links_url_scheme CHECK (url ~* '^https?://');
