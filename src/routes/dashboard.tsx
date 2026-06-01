@@ -312,9 +312,9 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
       <div className="flex items-start gap-4">
         <div className="relative">
           {profile.avatar_url ? (
-            <img src={profile.avatar_url} className="h-16 w-16 rounded-full border border-border object-cover" alt="" />
+            <img src={profile.avatar_url} className="h-20 w-20 rounded-full border-[3px] border-primary/30 object-cover shadow-glow ring-4 ring-primary/10" alt="" />
           ) : (
-            <div className="grid h-16 w-16 place-items-center rounded-full border border-border bg-surface text-sm text-muted-foreground">
+            <div className="grid h-20 w-20 place-items-center rounded-full border-[3px] border-primary/30 bg-surface text-base font-semibold text-muted-foreground shadow-glow ring-4 ring-primary/10">
               {profile.username.slice(0, 2).toUpperCase()}
             </div>
           )}
