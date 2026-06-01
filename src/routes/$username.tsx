@@ -234,7 +234,7 @@ function PublicProfile() {
 
                 {videos.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Vidéos</p>
+                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Vidéos</h2>
                     {videos.map((l) => {
                       const video = detectVideo(l.url);
                       if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
