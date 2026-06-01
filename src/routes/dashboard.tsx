@@ -323,6 +323,7 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
               ? <span className="text-[9px] text-primary-foreground">…</span>
               : <Upload className="h-3.5 w-3.5 text-primary-foreground" />}
             <input type="file" accept="image/*" hidden disabled={uploading !== null}
+              aria-label="Téléverser une photo de profil"
               onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "avatar")} />
           </label>
         </div>
