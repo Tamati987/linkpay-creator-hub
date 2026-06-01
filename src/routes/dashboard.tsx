@@ -783,8 +783,8 @@ function ProductRowItem({
 }
 
 function BillingSection({
-  isPro, hasSubscription, onToggleDemo,
-}: { isPro: boolean; hasSubscription: boolean; onToggleDemo: () => void }) {
+  isPro, hasSubscription,
+}: { isPro: boolean; hasSubscription: boolean }) {
   const startCheckout = useServerFn(createProCheckout);
   const openPortal = useServerFn(createPortalSession);
   const [loading, setLoading] = useState<"upgrade" | "portal" | null>(null);
