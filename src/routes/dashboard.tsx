@@ -19,6 +19,13 @@ import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 
 export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Zeno" },
+      { name: "description", content: "Gérez votre page Zeno : profil, liens, vidéos, produits et statistiques." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: DashboardPage,
 });
 
@@ -118,6 +125,7 @@ function DashboardPage() {
             </Link>
             <button
               onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+              aria-label="Se déconnecter"
               className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs text-muted-foreground transition hover:text-foreground"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -127,6 +135,7 @@ function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-4xl space-y-6 px-5 py-8">
+        <h1 className="sr-only">Dashboard</h1>
         <div className="grid gap-4 sm:grid-cols-4">
           <Stat label="Gains" value={formatPrice(earningsCents)} icon={<Wallet className="h-4 w-4" />} />
           <Stat label="Ventes" value={salesCount.toString()} />
@@ -287,6 +296,7 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
               <Upload className="h-3 w-3" />
               {uploading === "cover" ? "Envoi…" : profile.cover_url ? "Changer" : "Ajouter une couverture"}
               <input type="file" accept="image/*" hidden disabled={uploading !== null}
+                aria-label="Téléverser une image de couverture"
                 onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "cover")} />
             </label>
           ) : (
@@ -313,6 +323,7 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
               ? <span className="text-[9px] text-primary-foreground">…</span>
               : <Upload className="h-3.5 w-3.5 text-primary-foreground" />}
             <input type="file" accept="image/*" hidden disabled={uploading !== null}
+              aria-label="Téléverser une photo de profil"
               onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "avatar")} />
           </label>
         </div>
@@ -327,16 +338,19 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
             </span>
           </div>
           <div>
+            <label htmlFor="profile-username" className="sr-only">Nom d'utilisateur</label>
             <div className="flex h-10 w-full items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
               <span className="pl-3 pr-1 text-sm text-muted-foreground">@</span>
-              <input value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(validateUsername(e.target.value)); }} placeholder="nomutilisateur"
+              <input id="profile-username" value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(validateUsername(e.target.value)); }} placeholder="nomutilisateur"
                 className="h-full flex-1 bg-transparent pr-3 text-sm outline-none" />
             </div>
             {usernameError && <p className="mt-1 text-xs text-destructive">{usernameError}</p>}
           </div>
-          <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nom affiché"
+          <label htmlFor="profile-display-name" className="sr-only">Nom affiché</label>
+          <input id="profile-display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nom affiché"
             className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-          <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Votre bio (1-2 phrases)" rows={2}
+          <label htmlFor="profile-bio" className="sr-only">Bio</label>
+          <textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Votre bio (1-2 phrases)" rows={2}
             className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
           <button onClick={save} disabled={saving}
             className="inline-flex h-9 items-center rounded-lg bg-gradient-button px-4 text-xs font-medium text-primary-foreground shadow-glow disabled:opacity-60">

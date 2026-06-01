@@ -55,17 +55,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Zeno — Une page. Vos liens. Vos vidéos. Vos ventes." },
-      {
-        name: "description",
-        content:
-          "Zeno est la plateforme de liens en bio premium pour créateurs : vidéos intégrées, ventes digitales, design dark mode minimaliste.",
-      },
-      { property: "og:title", content: "Zeno" },
-      {
-        property: "og:description",
-        content: "La puissance multimédia pour une fraction du prix.",
-      },
+      { property: "og:site_name", content: "Zeno" },
       { property: "og:type", content: "website" },
     ],
     links: [

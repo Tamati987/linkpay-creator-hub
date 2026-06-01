@@ -8,6 +8,17 @@ import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Se connecter — Zeno" },
+      { name: "description", content: "Connectez-vous à votre compte Zeno pour gérer votre page de liens, vos vidéos et vos ventes." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Se connecter — Zeno" },
+      { property: "og:description", content: "Connectez-vous à votre page Zeno." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/login" }],
+  }),
   component: LoginPage,
 });
 
@@ -54,23 +65,31 @@ function LoginPage() {
         </p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-3">
-          <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
-          />
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
-          />
+          <div>
+            <label htmlFor="login-email" className="sr-only">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              required
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
+          <div>
+            <label htmlFor="login-password" className="sr-only">Mot de passe</label>
+            <input
+              id="login-password"
+              type="password"
+              required
+              minLength={6}
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
           <button
             disabled={loading}
             className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-gradient-button text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60"
