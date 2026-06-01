@@ -124,7 +124,7 @@ export const Route = createFileRoute("/$username")({
       links: [{ rel: "canonical", href: url }],
       scripts: ld.map((data) => ({
         type: "application/ld+json",
-        children: JSON.stringify(data),
+        children: JSON.stringify(data).replace(/<\/script/gi, "<\\/script").replace(/<!--/g, "<\\!--"),
       })),
     };
   },
