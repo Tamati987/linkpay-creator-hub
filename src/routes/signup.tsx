@@ -7,6 +7,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/signup")({
+  head: () => ({
+    meta: [
+      { title: "Créer un compte — Zeno" },
+      { name: "description", content: "Réservez votre nom d'utilisateur Zeno en 30 secondes et créez votre page de liens premium." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Créer un compte — Zeno" },
+      { property: "og:description", content: "Créez votre page Zeno en 30 secondes." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/signup" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/signup" }],
+  }),
   component: SignupPage,
 });
 
