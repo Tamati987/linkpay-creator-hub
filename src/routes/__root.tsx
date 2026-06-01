@@ -35,7 +35,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Oups, problème de chargement</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">Une erreur inattendue est survenue. Merci de réessayer.</p>
         <button
           onClick={() => {
             router.invalidate();
