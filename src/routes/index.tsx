@@ -115,7 +115,7 @@ function Landing() {
               <div className="grid h-9 w-9 place-items-center rounded-lg bg-accent">
                 <Icon className="h-4 w-4 text-foreground" />
               </div>
-              <h3 className="mt-4 font-semibold">{title}</h3>
+              <h2 className="mt-4 font-semibold">{title}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
             </div>
           ))}
