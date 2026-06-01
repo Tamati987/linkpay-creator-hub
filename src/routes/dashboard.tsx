@@ -387,7 +387,13 @@ function LinksSection({
     const { error } = await supabase.from("links").insert({
       user_id: userId, title, url, kind, position: links.length,
     });
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.message?.includes("free_plan_limit_reached")) {
+        return onLocked(kind === "video" ? "Liens vidéo illimités" : "Liens réseaux sociaux illimités");
+      }
+      console.error("[links.insert]", error);
+      return toast.error("Impossible d'ajouter ce lien. Réessayez.");
+    }
     setTitle(""); setUrl("");
     onChanged();
   };
@@ -607,7 +613,13 @@ function ProductsSection({
       file_path: filePath, image_url: imageUrl, position: products.length,
     });
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.message?.includes("free_plan_limit_reached")) {
+        return toast.error("Plan Gratuit : 1 produit maximum. Passez à Pro pour plus.");
+      }
+      console.error("[products.insert]", error);
+      return toast.error("Impossible d'ajouter ce produit. Réessayez.");
+    }
     setTitle(""); setDescription(""); setPrice(""); setFile(null); setImage(null);
     onChanged();
     toast.success("Produit ajouté");

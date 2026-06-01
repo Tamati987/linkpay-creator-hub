@@ -16,9 +16,17 @@ export function NewsletterBlock({ userId }: { userId: string }) {
       .from("newsletter_subscribers")
       .insert({ user_id: userId, email });
     setLoading(false);
-    if (error && !error.message.includes("duplicate")) {
-      toast.error(error.message);
-      return;
+    if (error) {
+      if (error.code === "23505") {
+        // already subscribed — treat as success
+      } else if (error.code === "23514") {
+        toast.error("Adresse email invalide");
+        return;
+      } else {
+        console.error("[newsletter] insert failed", error);
+        toast.error("Impossible de s'inscrire. Réessayez plus tard.");
+        return;
+      }
     }
     setDone(true);
     toast.success("Inscription confirmée");
