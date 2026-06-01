@@ -5,17 +5,39 @@ import { ZenoLogo } from "@/components/ZenoLogo";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Zeno — Une page. Tous vos liens. Vos vidéos. Vos ventes." },
+      { title: "Zeno — Liens, vidéos et ventes en une page" },
       {
         name: "description",
         content:
-          "Zeno est la nouvelle plateforme de liens en bio premium pour créateurs : vidéos intégrées, ventes digitales, design dark mode minimaliste.",
+          "Zeno réunit vos réseaux, vidéos YouTube/TikTok/Twitch et produits digitaux sur une page mobile ultra-rapide.",
       },
-      { property: "og:title", content: "Zeno — Liens en bio premium" },
+      { property: "og:title", content: "Zeno — Liens, vidéos et ventes en une page" },
       {
         property: "og:description",
         content:
-          "La puissance multimédia pour une fraction du prix : YouTube, TikTok, Twitch, Vimeo, ventes & newsletter en une page.",
+          "Zeno réunit vos réseaux, vidéos YouTube/TikTok/Twitch et produits digitaux sur une page mobile ultra-rapide.",
+      },
+      { property: "og:url", content: "https://zenolinkkitapp.com/" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Zeno",
+              url: "https://zenolinkkitapp.com",
+            },
+            {
+              "@type": "WebSite",
+              name: "Zeno",
+              url: "https://zenolinkkitapp.com",
+            },
+          ],
+        }),
       },
     ],
   }),
