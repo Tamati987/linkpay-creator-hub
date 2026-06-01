@@ -338,16 +338,19 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
             </span>
           </div>
           <div>
+            <label htmlFor="profile-username" className="sr-only">Nom d'utilisateur</label>
             <div className="flex h-10 w-full items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
               <span className="pl-3 pr-1 text-sm text-muted-foreground">@</span>
-              <input value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(validateUsername(e.target.value)); }} placeholder="nomutilisateur"
+              <input id="profile-username" value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(validateUsername(e.target.value)); }} placeholder="nomutilisateur"
                 className="h-full flex-1 bg-transparent pr-3 text-sm outline-none" />
             </div>
             {usernameError && <p className="mt-1 text-xs text-destructive">{usernameError}</p>}
           </div>
-          <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nom affiché"
+          <label htmlFor="profile-display-name" className="sr-only">Nom affiché</label>
+          <input id="profile-display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Nom affiché"
             className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-          <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Votre bio (1-2 phrases)" rows={2}
+          <label htmlFor="profile-bio" className="sr-only">Bio</label>
+          <textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Votre bio (1-2 phrases)" rows={2}
             className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
           <button onClick={save} disabled={saving}
             className="inline-flex h-9 items-center rounded-lg bg-gradient-button px-4 text-xs font-medium text-primary-foreground shadow-glow disabled:opacity-60">
