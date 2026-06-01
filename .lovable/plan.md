@@ -1,39 +1,40 @@
-## Problème
+## Objectif
+Mettre en place un abonnement mensuel Pro via Stripe (le prix `STRIPE_PRO_PRICE_ID` est déjà configuré).
 
-Le lecteur Twitch ne s'affiche pas pour deux raisons :
+## Ce qui existe déjà
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` (secrets)
+- Table `profiles` avec `is_pro`, `stripe_customer_id`, `stripe_subscription_id`
+- Authentification utilisateur
 
-1. **URLs de chaînes live non gérées** : `detectVideo()` reconnaît uniquement `twitch.tv/videos/<id>` (VOD) et `clips.twitch.tv/<id>` (clips). Les URLs de chaînes comme `twitch.tv/<chaîne>` sont classées comme « social » et n'ont donc jamais de lecteur.
-2. **Paramètre `parent` insuffisant** : Twitch exige que `parent=` corresponde **exactement** au domaine qui affiche l'iframe. Dans la preview Lovable, l'app tourne dans une iframe (`*.lovable.app`) imbriquée dans `lovable.dev`. Twitch exige alors **plusieurs** `parent=` (un par niveau de domaine), sinon l'iframe reste noire/vide.
+## Étapes
 
-## Correctif
+1. **Server function `create-checkout`** (`src/lib/stripe-checkout.functions.ts`)
+   - Protégée par `requireSupabaseAuth`
+   - Crée/retrouve le customer Stripe par email
+   - Crée une Checkout Session en mode `subscription` avec `STRIPE_PRO_PRICE_ID`
+   - Retourne l'URL de checkout
 
-### 1. `src/lib/video.ts` — `detectVideo()`
+2. **Server function `check-subscription`** (`src/lib/stripe-subscription.functions.ts`)
+   - Protégée par `requireSupabaseAuth`
+   - Interroge Stripe pour vérifier l'abonnement actif
+   - Met à jour `profiles.is_pro`, `stripe_customer_id`, `stripe_subscription_id`
+   - Retourne `{ subscribed, subscription_end }`
 
-- Ajouter la reconnaissance des chaînes live : `twitch.tv/<channel>` → `https://player.twitch.tv/?channel=<channel>&parent=...`
-- Exclure les chemins réservés (`/videos`, `/directory`, `/p`, `/about`, `/subscriptions`, etc.) pour ne pas embarquer ces pages.
-- Construire les `parent` dynamiquement côté client :
-  - hostname courant (ex. `id-preview--xxx.lovable.app`)
-  - `lovable.app`, `lovable.dev`, `localhost` en repli
-  - dédupliqués, concaténés en `&parent=a&parent=b&parent=c`
-- Côté SSR (`window` indéfini) : utiliser un placeholder neutre (`localhost`) — l'iframe sera réhydratée côté client avec les bons `parent`.
+3. **Server function `customer-portal`** (`src/lib/stripe-portal.functions.ts`)
+   - Ouvre le Stripe Customer Portal pour gérer/annuler l'abonnement
 
-### 2. `src/lib/video.ts` — `inferLinkKind()` / `isVideoUrl()`
+4. **Webhook Stripe** (`src/routes/api/public/stripe-webhook.ts` — vérifier s'il existe déjà)
+   - Vérifie la signature avec `STRIPE_WEBHOOK_SECRET`
+   - Gère `customer.subscription.created/updated/deleted` et `checkout.session.completed`
+   - Met à jour `profiles.is_pro` en conséquence
 
-Aucun changement nécessaire : `inferLinkKind()` met déjà `video` en priorité sur `social` quand `detectVideo()` retourne un résultat. Comme les chaînes Twitch seront désormais reconnues comme vidéo, elles afficheront un lecteur ET resteront masquées de la liste « réseaux sociaux » (déjà filtré côté `$username.tsx`).
+5. **UI**
+   - Bouton "Passer Pro" (ouvre checkout dans un nouvel onglet)
+   - Affichage du statut Pro dans le profil
+   - Bouton "Gérer mon abonnement" (portal) si abonné
+   - Auto-refresh du statut au login et après retour du checkout
 
-### 3. `src/components/VideoEmbed.tsx`
-
-Ajouter pour l'iframe Twitch les attributs nécessaires :
-- `sandbox="allow-scripts allow-same-origin allow-popups allow-forms"` (Twitch player en a besoin)
-
-### Hors périmètre
-
-- Pas de changement DB / RLS / dashboard / auth.
-- Les VODs (`/videos/<id>`) et clips déjà fonctionnels ne sont pas modifiés (seulement la construction des `parent`).
-
-## Vérification
-
-Après build :
-1. Tester une URL chaîne `https://twitch.tv/<chaîne>` → lecteur live visible.
-2. Tester une URL VOD `https://twitch.tv/videos/<id>` → lecteur VOD visible.
-3. Tester un clip → lecteur clip visible.
+## Questions avant de coder
+- Prix mensuel de l'abonnement Pro ? (le `STRIPE_PRO_PRICE_ID` existe — je peux le récupérer depuis Stripe pour confirmer)
+- Un seul tier "Pro" ou plusieurs niveaux (Basic/Pro/Premium) ?
+- Quels avantages débloque "Pro" dans l'app (à protéger côté UI/serveur) ?
