@@ -2,7 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/checkout/success")({
-  head: () => ({ meta: [{ title: "Achat confirmé — Zeno" }] }),
+  head: () => ({
+    meta: [
+      { title: "Achat confirmé — Zeno" },
+      { name: "description", content: "Votre achat a été confirmé. Un email avec votre lien de téléchargement vous sera envoyé sous peu." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Achat confirmé — Zeno" },
+      { property: "og:description", content: "Votre achat sur Zeno a bien été confirmé." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/checkout/success" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/checkout/success" }],
+  }),
   component: SuccessPage,
 });
 
