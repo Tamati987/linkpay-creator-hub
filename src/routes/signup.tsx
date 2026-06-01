@@ -81,33 +81,45 @@ function SignupPage() {
         </p>
 
         <form onSubmit={onSubmit} className="mt-8 space-y-3">
-          <div className="flex h-11 items-center overflow-hidden rounded-xl border border-border bg-surface px-3.5 text-sm focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
-            <span className="text-muted-foreground">zeno.app/</span>
+          <div>
+            <label htmlFor="signup-username" className="sr-only">Nom d'utilisateur</label>
+            <div className="flex h-11 items-center overflow-hidden rounded-xl border border-border bg-surface px-3.5 text-sm focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+              <span className="text-muted-foreground">zeno.app/</span>
+              <input
+                id="signup-username"
+                required
+                placeholder="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="flex-1 bg-transparent outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="signup-email" className="sr-only">Email</label>
             <input
+              id="signup-email"
+              type="email"
               required
-              placeholder="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 bg-transparent outline-none"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
             />
           </div>
-          <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
-          />
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Mot de passe (6+ caractères)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
-          />
+          <div>
+            <label htmlFor="signup-password" className="sr-only">Mot de passe</label>
+            <input
+              id="signup-password"
+              type="password"
+              required
+              minLength={6}
+              placeholder="Mot de passe (6+ caractères)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
           <button
             disabled={loading}
             className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-gradient-button text-sm font-medium text-primary-foreground shadow-glow disabled:opacity-60"
