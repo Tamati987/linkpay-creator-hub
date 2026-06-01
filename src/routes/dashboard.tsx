@@ -853,12 +853,6 @@ function BillingSection({
           </button>
         )}
       </div>
-      <button
-        onClick={onToggleDemo}
-        className="mt-3 text-[11px] text-muted-foreground/70 hover:text-muted-foreground underline"
-      >
-        Démo : basculer Pro/Gratuit (sans paiement)
-      </button>
     </section>
   );
 }
