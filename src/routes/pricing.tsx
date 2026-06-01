@@ -132,7 +132,7 @@ function PricingPage() {
               <Crown className="h-3 w-3" /> Recommandé
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-xs font-medium uppercase tracking-wider text-primary">Zeno Pro</div>
+              <h2 className="text-xs font-medium uppercase tracking-wider text-primary">Zeno Pro</h2>
               <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                 Tout inclus
               </span>
