@@ -24,7 +24,9 @@ export const Route = createFileRoute("/pricing")({
         property: "og:description",
         content: "La puissance multimédia pour une fraction du prix.",
       },
+      { property: "og:url", content: "https://zenolinkkitapp.com/pricing" },
     ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/pricing" }],
   }),
   component: PricingPage,
 });
