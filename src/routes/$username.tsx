@@ -268,7 +268,7 @@ function PublicProfile() {
                             src={l.url}
                             title={l.title}
                             loading="lazy"
-                            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                            sandbox="allow-scripts allow-popups-to-escape-sandbox allow-forms"
                             referrerPolicy="no-referrer"
                             className="h-[420px] w-full bg-background"
                           />
