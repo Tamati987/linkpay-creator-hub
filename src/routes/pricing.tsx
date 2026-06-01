@@ -96,7 +96,7 @@ function PricingPage() {
         <div className="mx-auto mt-12 grid max-w-4xl gap-5 md:grid-cols-2">
           {/* FREE */}
           <div className="rounded-2xl glass p-6 shadow-soft">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Gratuit</div>
+            <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Gratuit</h2>
             <div className="mt-3 flex items-baseline gap-1">
               <span className="text-4xl font-semibold tracking-tight">0$</span>
               <span className="text-sm text-muted-foreground">/mois</span>
