@@ -24,7 +24,11 @@ export const Route = createFileRoute("/dashboard")({
       { title: "Dashboard — Zeno" },
       { name: "description", content: "Gérez votre page Zeno : profil, liens, vidéos, produits et statistiques." },
       { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Dashboard — Zeno" },
+      { property: "og:description", content: "Gérez votre page Zeno depuis votre tableau de bord." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/dashboard" },
     ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/dashboard" }],
   }),
   component: DashboardPage,
 });
