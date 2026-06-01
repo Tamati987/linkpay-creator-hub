@@ -208,7 +208,7 @@ function PublicProfile() {
               <>
                 {socials.length > 0 && (
                   <div>
-                    <p className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">Réseaux sociaux</p>
+                    <h2 className="mb-2 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Réseaux sociaux</h2>
                     <div className="flex flex-wrap justify-center gap-3">
                       {socials.map((l) => {
                         const brand = detectSocialBrand(l.url);
@@ -234,7 +234,7 @@ function PublicProfile() {
 
                 {videos.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Vidéos</p>
+                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Vidéos</h2>
                     {videos.map((l) => {
                       const video = detectVideo(l.url);
                       if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
@@ -245,7 +245,7 @@ function PublicProfile() {
 
                 {websites.length > 0 && (
                   <div className="space-y-3">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Sites internet</p>
+                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Sites internet</h2>
                     {websites.map((l) =>
                       profile.is_pro ? (
                         <div
