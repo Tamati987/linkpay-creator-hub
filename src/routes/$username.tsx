@@ -144,8 +144,6 @@ function PublicProfile() {
   const { data } = useSuspenseQuery(profileQueryOptions(username));
 
 
-    );
-  }
 
   const { profile, links, products } = data;
   const initials = (profile.display_name || profile.username)
