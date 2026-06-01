@@ -28,14 +28,13 @@ const FREE_VIDEO_LIMIT = 1;
 type Profile = {
   id: string; username: string; display_name: string;
   bio: string; avatar_url: string | null; is_pro: boolean;
-  stripe_customer_id: string | null;
   cover_url: string | null;
   purchased_avatars: string[] | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
   id: string; title: string; description: string;
-  price_cents: number; file_path: string | null; image_url: string | null; position: number;
+  price_cents: number; image_url: string | null; position: number;
 };
 
 function DashboardPage() {
