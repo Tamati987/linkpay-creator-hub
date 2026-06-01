@@ -387,7 +387,13 @@ function LinksSection({
     const { error } = await supabase.from("links").insert({
       user_id: userId, title, url, kind, position: links.length,
     });
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.message?.includes("free_plan_limit_reached")) {
+        return onLocked(kind === "video" ? "Liens vidéo illimités" : "Liens réseaux sociaux illimités");
+      }
+      console.error("[links.insert]", error);
+      return toast.error("Impossible d'ajouter ce lien. Réessayez.");
+    }
     setTitle(""); setUrl("");
     onChanged();
   };
