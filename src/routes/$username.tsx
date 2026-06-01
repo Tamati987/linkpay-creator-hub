@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ExternalLink, Globe, LayoutDashboard, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,6 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
-
-export const Route = createFileRoute("/$username")({
-  component: PublicProfile,
-});
 
 type Profile = {
   id: string;
@@ -54,6 +50,87 @@ async function fetchProfile(username: string) {
   };
 }
 
+const profileQueryOptions = (username: string) =>
+  queryOptions({
+    queryKey: ["profile", username],
+    queryFn: () => fetchProfile(username),
+  });
+
+export const Route = createFileRoute("/$username")({
+  loader: ({ params, context }) =>
+    context.queryClient.ensureQueryData(profileQueryOptions(params.username)),
+  head: ({ params, loaderData }) => {
+    const url = `https://zenolinkkitapp.com/${params.username}`;
+    if (!loaderData) {
+      return {
+        meta: [
+          { title: `@${params.username} — Zeno` },
+          { name: "robots", content: "noindex" },
+        ],
+        links: [{ rel: "canonical", href: url }],
+      };
+    }
+    const { profile, products } = loaderData;
+    const name = profile.display_name || `@${profile.username}`;
+    const title = `${name} (@${profile.username}) — Zeno`;
+    const description =
+      profile.bio?.trim() ||
+      `Découvrez la page Zeno de ${name} : liens, vidéos et créations.`;
+    const image = profile.avatar_url || profile.cover_url || undefined;
+
+    const meta: Array<Record<string, string>> = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:url", content: url },
+      { property: "og:type", content: "profile" },
+    ];
+    if (image) {
+      meta.push({ property: "og:image", content: image });
+      meta.push({ name: "twitter:image", content: image });
+    }
+
+    const ld: Record<string, unknown>[] = [
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        url,
+        mainEntity: {
+          "@type": "Person",
+          name,
+          alternateName: `@${profile.username}`,
+          description: profile.bio || undefined,
+          image: image || undefined,
+          url,
+        },
+      },
+      ...products.map((p) => ({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: p.title,
+        description: p.description || undefined,
+        image: p.image_url || undefined,
+        offers: {
+          "@type": "Offer",
+          price: (p.price_cents / 100).toFixed(2),
+          priceCurrency: "USD",
+        },
+      })),
+    ];
+
+    return {
+      meta,
+      links: [{ rel: "canonical", href: url }],
+      scripts: ld.map((data) => ({
+        type: "application/ld+json",
+        children: JSON.stringify(data),
+      })),
+    };
+  },
+  component: PublicProfile,
+});
+
 function PublicProfile() {
   const { username } = Route.useParams();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -64,10 +141,8 @@ function PublicProfile() {
     });
   }, []);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["profile", username],
-    queryFn: () => fetchProfile(username),
-  });
+  const { data } = useSuspenseQuery(profileQueryOptions(username));
+
 
   if (isLoading) {
     return (
