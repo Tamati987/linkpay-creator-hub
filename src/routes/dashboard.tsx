@@ -296,6 +296,7 @@ function ProfileSection({ profile, onSaved }: { profile: Profile; onSaved: () =>
               <Upload className="h-3 w-3" />
               {uploading === "cover" ? "Envoi…" : profile.cover_url ? "Changer" : "Ajouter une couverture"}
               <input type="file" accept="image/*" hidden disabled={uploading !== null}
+                aria-label="Téléverser une image de couverture"
                 onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0], "cover")} />
             </label>
           ) : (
