@@ -92,16 +92,6 @@ function DashboardPage() {
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dashboard", user.id] });
 
-  const togglePro = async () => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_pro: !profile.is_pro })
-      .eq("id", profile.id);
-    if (error) return toast.error(error.message);
-    toast.success(profile.is_pro ? "Mode Gratuit activé" : "Mode Pro activé (démo)");
-    refresh();
-  };
-
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-border glass">
