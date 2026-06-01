@@ -28,14 +28,13 @@ const FREE_VIDEO_LIMIT = 1;
 type Profile = {
   id: string; username: string; display_name: string;
   bio: string; avatar_url: string | null; is_pro: boolean;
-  stripe_customer_id: string | null;
   cover_url: string | null;
   purchased_avatars: string[] | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
   id: string; title: string; description: string;
-  price_cents: number; file_path: string | null; image_url: string | null; position: number;
+  price_cents: number; image_url: string | null; position: number;
 };
 
 function DashboardPage() {
@@ -55,10 +54,10 @@ function DashboardPage() {
       const uid = user!.id;
       const [{ data: profile }, { data: links }, { data: products }, { data: purchases }, { count: subs }] =
         await Promise.all([
-          supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+          supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, purchased_avatars").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
-          supabase.from("products").select("*").eq("user_id", uid)
+          supabase.from("products").select("id, title, description, price_cents, image_url, position, user_id, created_at").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("purchases").select("amount_cents").eq("seller_id", uid),
           supabase.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("user_id", uid),
@@ -92,16 +91,6 @@ function DashboardPage() {
   }
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["dashboard", user.id] });
-
-  const togglePro = async () => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_pro: !profile.is_pro })
-      .eq("id", profile.id);
-    if (error) return toast.error(error.message);
-    toast.success(profile.is_pro ? "Mode Gratuit activé" : "Mode Pro activé (démo)");
-    refresh();
-  };
 
   return (
     <div className="min-h-screen">
@@ -164,9 +153,9 @@ function DashboardPage() {
 
         <BillingSection
           isPro={profile.is_pro}
-          hasSubscription={!!profile.stripe_customer_id}
-          onToggleDemo={togglePro}
+          hasSubscription={profile.is_pro}
         />
+
 
       </main>
 
@@ -794,8 +783,8 @@ function ProductRowItem({
 }
 
 function BillingSection({
-  isPro, hasSubscription, onToggleDemo,
-}: { isPro: boolean; hasSubscription: boolean; onToggleDemo: () => void }) {
+  isPro, hasSubscription,
+}: { isPro: boolean; hasSubscription: boolean }) {
   const startCheckout = useServerFn(createProCheckout);
   const openPortal = useServerFn(createPortalSession);
   const [loading, setLoading] = useState<"upgrade" | "portal" | null>(null);
@@ -864,12 +853,6 @@ function BillingSection({
           </button>
         )}
       </div>
-      <button
-        onClick={onToggleDemo}
-        className="mt-3 text-[11px] text-muted-foreground/70 hover:text-muted-foreground underline"
-      >
-        Démo : basculer Pro/Gratuit (sans paiement)
-      </button>
     </section>
   );
 }
