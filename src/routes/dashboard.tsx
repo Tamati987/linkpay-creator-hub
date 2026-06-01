@@ -19,6 +19,13 @@ import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 
 export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Zeno" },
+      { name: "description", content: "Gérez votre page Zeno : profil, liens, vidéos, produits et statistiques." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: DashboardPage,
 });
 
