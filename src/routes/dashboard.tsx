@@ -153,9 +153,9 @@ function DashboardPage() {
 
         <BillingSection
           isPro={profile.is_pro}
-          hasSubscription={!!profile.stripe_customer_id}
-          onToggleDemo={togglePro}
+          hasSubscription={profile.is_pro}
         />
+
 
       </main>
 
