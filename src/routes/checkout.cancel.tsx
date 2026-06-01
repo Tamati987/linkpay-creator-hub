@@ -2,7 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/checkout/cancel")({
-  head: () => ({ meta: [{ title: "Paiement annulé — Zeno" }] }),
+  head: () => ({
+    meta: [
+      { title: "Paiement annulé — Zeno" },
+      { name: "description", content: "Votre paiement a été annulé. Aucun montant n'a été débité — vous pouvez réessayer quand vous le souhaitez." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Paiement annulé — Zeno" },
+      { property: "og:description", content: "Votre paiement Zeno a été annulé." },
+      { property: "og:url", content: "https://zenolinkkitapp.com/checkout/cancel" },
+    ],
+    links: [{ rel: "canonical", href: "https://zenolinkkitapp.com/checkout/cancel" }],
+  }),
   component: CancelPage,
 });
 
