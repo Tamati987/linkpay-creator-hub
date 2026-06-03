@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ExternalLink, Globe, LayoutDashboard, Sparkles } from "lucide-react";
+import { Check, ExternalLink, Globe, LayoutDashboard, Share2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import { VideoEmbed } from "@/components/VideoEmbed";
@@ -150,6 +151,31 @@ function PublicProfile() {
     .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
   const isOwner = currentUserId === profile.id;
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined"
+      ? window.location.href
+      : `https://zenolinkkitapp.com/${profile.username}`;
+    const title = `${profile.display_name || `@${profile.username}`} — Zeno`;
+    const text = profile.bio || `Découvrez la page de @${profile.username}`;
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share({ title, text, url });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed — fall back to copy
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Lien copié !");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Impossible de copier le lien");
+    }
+  };
 
   return (
     <div className="min-h-screen pb-16">
@@ -179,15 +205,25 @@ function PublicProfile() {
           {profile.bio && (
             <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
           )}
-          {isOwner && (
-            <Link
-              to="/dashboard"
-              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+          <div className="mt-4 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
             >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              Dashboard
-            </Link>
-          )}
+              {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Share2 className="h-3.5 w-3.5" />}
+              {copied ? "Copié" : "Partager"}
+            </button>
+            {isOwner && (
+              <Link
+                to="/dashboard"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="mt-8 space-y-6">
