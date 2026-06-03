@@ -707,7 +707,7 @@ function ProductsSection({
       console.error("[products.insert]", error);
       return toast.error("Impossible d'ajouter ce produit. Réessayez.");
     }
-    setTitle(""); setDescription(""); setPrice(""); setFile(null); setImage(null);
+    setTitle(""); setDescription(""); setPrice(""); setPayoutUrl(""); setFile(null); setImage(null);
     onChanged();
     toast.success("Produit ajouté");
   };
