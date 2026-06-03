@@ -92,6 +92,18 @@ export const createProductCheckout = createServerFn({ method: "POST" })
       throw new Error("Prix minimum 5$");
     }
 
+    const { data: seller } = await supabaseAdmin
+      .from("profiles")
+      .select("stripe_connect_account_id, stripe_connect_charges_enabled")
+      .eq("id", product.user_id)
+      .maybeSingle();
+
+    if (!seller?.stripe_connect_account_id || !seller.stripe_connect_charges_enabled) {
+      throw new Error("Ce vendeur n'a pas encore activé les paiements.");
+    }
+
+    const platformFee = Math.round(product.price_cents * 0.05);
+
     const origin = getOrigin();
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -111,6 +123,10 @@ export const createProductCheckout = createServerFn({ method: "POST" })
         },
       ],
       payment_intent_data: {
+        application_fee_amount: platformFee,
+        transfer_data: {
+          destination: seller.stripe_connect_account_id,
+        },
         metadata: {
           product_id: product.id,
           seller_id: product.user_id,
@@ -130,6 +146,7 @@ export const createProductCheckout = createServerFn({ method: "POST" })
 
     return { url: session.url };
   });
+
 
 export const createAvatarCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
