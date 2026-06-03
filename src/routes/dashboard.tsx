@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   Check, Crown, ExternalLink, Eye, Globe, Image as ImageIcon, Lock, LogOut,
   Pencil, PlayCircle, Plus, Sparkles, Trash2, Upload, Wallet, X,
-  Mail, Users,
+  Mail, Users, Share2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
