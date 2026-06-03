@@ -697,6 +697,7 @@ function ProductsSection({
     const { error } = await supabase.from("products").insert({
       user_id: userId, title, description, price_cents: Math.round(priceNum * 100),
       file_path: filePath, image_url: imageUrl, position: products.length,
+      payout_url: trimmedPayout || null,
     });
     setLoading(false);
     if (error) {
