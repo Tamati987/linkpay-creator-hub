@@ -1014,12 +1014,22 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
     <section className="rounded-2xl glass p-5 shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <div className="text-sm font-semibold flex items-center gap-2">
+          <div className="text-sm font-semibold flex items-center gap-2 flex-wrap">
             <Wallet className="h-4 w-4 text-primary" />
             Paiements vendeur
+            {platform?.enabled === true && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">
+                <Check className="h-3 w-3" /> Connect activé
+              </span>
+            )}
+            {platform?.enabled === false && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-500">
+                Connect non activé
+              </span>
+            )}
             {active && (
               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">
-                <Check className="h-3 w-3" /> Activé
+                <Check className="h-3 w-3" /> Compte prêt
               </span>
             )}
             {incomplete && (
@@ -1029,13 +1039,15 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {isLoading
-              ? "Chargement…"
-              : active
-                ? `L'argent de vos ventes est versé directement sur votre compte bancaire. ${commissionText}.`
-                : incomplete
-                  ? "Votre inscription Stripe est incomplète. Finalisez-la pour recevoir vos paiements."
-                  : `Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. ${commissionText}.`}
+            {platform?.enabled === false
+              ? platform.error
+              : isLoading
+                ? "Chargement…"
+                : active
+                  ? `L'argent de vos ventes est versé directement sur votre compte bancaire. ${commissionText}.`
+                  : incomplete
+                    ? "Votre inscription Stripe est incomplète. Finalisez-la pour recevoir vos paiements."
+                    : `Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. ${commissionText}.`}
           </p>
         </div>
         {active ? (
