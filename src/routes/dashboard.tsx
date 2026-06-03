@@ -17,8 +17,6 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
-import { createConnectOnboardingLink, createConnectLoginLink, getConnectStatus, getPlatformConnectStatus } from "@/lib/stripe-connect.functions";
-import { createCommissionCheckout, listCommissionPayments } from "@/lib/commission.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 
 export const Route = createFileRoute("/dashboard")({
