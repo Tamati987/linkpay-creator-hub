@@ -652,8 +652,8 @@ function KindBadge({ kind, url }: { kind: LinkRow["kind"]; url?: string }) {
 }
 
 function ProductsSection({
-  userId, products, onChanged,
-}: { userId: string; products: ProductRow[]; onChanged: () => void }) {
+  userId, products, isPro, onChanged,
+}: { userId: string; products: ProductRow[]; isPro: boolean; onChanged: () => void }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
