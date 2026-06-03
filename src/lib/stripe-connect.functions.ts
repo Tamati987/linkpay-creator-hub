@@ -116,7 +116,12 @@ export const getConnectStatus = createServerFn({ method: "POST" })
       .eq("id", userId)
       .maybeSingle();
     if (!profile?.stripe_connect_account_id) {
-      return { connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false };
+      return {
+        connected: false,
+        charges_enabled: false,
+        payouts_enabled: false,
+        details_submitted: false,
+      };
     }
     const s = await syncStatus(profile.stripe_connect_account_id, userId);
     return { connected: true, ...s };
