@@ -798,6 +798,7 @@ function ProductRowItem({
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState((product.price_cents / 100).toString());
+  const [payoutUrl, setPayoutUrl] = useState(product.payout_url ?? "");
   const [image, setImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const imagePreview = image ? URL.createObjectURL(image) : product.image_url;
@@ -805,7 +806,9 @@ function ProductRowItem({
   const cancel = () => {
     setEditing(false);
     setTitle(product.title); setDescription(product.description);
-    setPrice((product.price_cents / 100).toString()); setImage(null);
+    setPrice((product.price_cents / 100).toString());
+    setPayoutUrl(product.payout_url ?? "");
+    setImage(null);
   };
 
   const save = async () => {
