@@ -205,15 +205,25 @@ function PublicProfile() {
           {profile.bio && (
             <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
           )}
-          {isOwner && (
-            <Link
-              to="/dashboard"
-              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+          <div className="mt-4 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
             >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              Dashboard
-            </Link>
-          )}
+              {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Share2 className="h-3.5 w-3.5" />}
+              {copied ? "Copié" : "Partager"}
+            </button>
+            {isOwner && (
+              <Link
+                to="/dashboard"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="mt-8 space-y-6">
