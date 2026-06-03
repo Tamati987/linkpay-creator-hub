@@ -952,14 +952,22 @@ function BillingSection({
 function PayoutsSection({ isPro }: { isPro: boolean }) {
   const commissionText = isPro ? "Commission plateforme : 0% (avantage Pro)" : "Commission plateforme : 5%";
   const getStatus = useServerFn(getConnectStatus);
+  const getPlatform = useServerFn(getPlatformConnectStatus);
   const onboard = useServerFn(createConnectOnboardingLink);
   const loginLink = useServerFn(createConnectLoginLink);
   const qc = useQueryClient();
   const [busy, setBusy] = useState<"onboard" | "dashboard" | null>(null);
 
+  const { data: platform } = useQuery({
+    queryKey: ["connect-platform-status"],
+    queryFn: () => getPlatform(),
+    staleTime: 60_000,
+  });
+
   const { data: status, isLoading } = useQuery({
     queryKey: ["connect-status"],
     queryFn: () => getStatus(),
+    enabled: platform?.enabled === true,
   });
 
   useEffect(() => {
