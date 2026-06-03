@@ -814,6 +814,10 @@ function ProductRowItem({
   const save = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const trimmedPayout = payoutUrl.trim();
+    if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
+      return toast.error("Le lien de paiement doit commencer par https://");
+    }
     setSaving(true);
     let imageUrl = product.image_url;
     if (image) {
@@ -826,6 +830,7 @@ function ProductRowItem({
     }
     const { error } = await supabase.from("products").update({
       title, description, price_cents: Math.round(priceNum * 100), image_url: imageUrl,
+      payout_url: trimmedPayout || null,
     }).eq("id", product.id);
     setSaving(false);
     if (error) return toast.error(error.message);
