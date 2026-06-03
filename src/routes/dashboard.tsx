@@ -973,7 +973,11 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
   const startOnboarding = async () => {
     setBusy("onboard");
     try {
-      const { url } = await onboard();
+      const { url, error } = await onboard();
+      if (error) {
+        toast.error(error);
+        return;
+      }
       if (url) window.location.href = url;
     } catch (e: any) {
       toast.error(e?.message || "Erreur");

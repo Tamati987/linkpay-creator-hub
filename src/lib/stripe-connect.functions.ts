@@ -9,6 +9,17 @@ function getOrigin() {
 
 export const PLATFORM_FEE_BPS = 500; // 5%
 
+function getConnectSetupError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("signed up for Connect")) {
+    return "Stripe Connect n’est pas encore activé sur le compte Stripe de la plateforme. Activez Connect dans Stripe, puis réessayez.";
+  }
+  if (message.includes("required permissions") || message.includes("restricted key")) {
+    return "La clé Stripe configurée n’a pas les permissions nécessaires pour Stripe Connect. Utilisez une clé secrète Stripe complète.";
+  }
+  return "Impossible de créer le lien Stripe Connect pour le moment. Réessayez dans quelques instants.";
+}
+
 async function ensureAccount(userId: string, email: string | undefined) {
   const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
   const { data: profile } = await supabaseAdmin
@@ -59,18 +70,23 @@ async function syncStatus(accountId: string, userId: string) {
 export const createConnectOnboardingLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
-    const { userId, claims } = context;
-    const email = typeof claims.email === "string" ? claims.email : undefined;
-    const accountId = await ensureAccount(userId, email);
-    const origin = getOrigin();
-    const link = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: `${origin}/dashboard?connect=refresh`,
-      return_url: `${origin}/dashboard?connect=return`,
-      type: "account_onboarding",
-    });
-    return { url: link.url };
+    try {
+      const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
+      const { userId, claims } = context;
+      const email = typeof claims.email === "string" ? claims.email : undefined;
+      const accountId = await ensureAccount(userId, email);
+      const origin = getOrigin();
+      const link = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: `${origin}/dashboard?connect=refresh`,
+        return_url: `${origin}/dashboard?connect=return`,
+        type: "account_onboarding",
+      });
+      return { url: link.url, error: null };
+    } catch (error) {
+      console.error("Stripe Connect onboarding failed", error);
+      return { url: null, error: getConnectSetupError(error) };
+    }
   });
 
 export const createConnectLoginLink = createServerFn({ method: "POST" })
@@ -100,7 +116,12 @@ export const getConnectStatus = createServerFn({ method: "POST" })
       .eq("id", userId)
       .maybeSingle();
     if (!profile?.stripe_connect_account_id) {
-      return { connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false };
+      return {
+        connected: false,
+        charges_enabled: false,
+        payouts_enabled: false,
+        details_submitted: false,
+      };
     }
     const s = await syncStatus(profile.stripe_connect_account_id, userId);
     return { connected: true, ...s };
