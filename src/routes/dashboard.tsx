@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   Check, Crown, ExternalLink, Eye, Globe, Image as ImageIcon, Lock, LogOut,
   Pencil, PlayCircle, Plus, Sparkles, Trash2, Upload, Wallet, X,
-  Mail, Users,
+  Mail, Users, Share2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -155,6 +155,32 @@ function DashboardPage() {
             >
               <Eye className="h-3.5 w-3.5" /> Ma page
             </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                const url = `${window.location.origin}/${profile.username}`;
+                const shareData = {
+                  title: `${profile.display_name || `@${profile.username}`} — Zeno`,
+                  text: `Découvrez ma page Zeno`,
+                  url,
+                };
+                try {
+                  if ((navigator as any).share) {
+                    await (navigator as any).share(shareData);
+                    return;
+                  }
+                } catch { /* fall back to copy */ }
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Lien copié !");
+                } catch {
+                  toast.error("Impossible de copier le lien");
+                }
+              }}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+            >
+              <Share2 className="h-3.5 w-3.5" /> Partager
+            </button>
             <button
               onClick={async () => { await signOut(); navigate({ to: "/" }); }}
               aria-label="Se déconnecter"
