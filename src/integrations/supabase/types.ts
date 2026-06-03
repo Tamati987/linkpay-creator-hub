@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      commission_payments: {
+        Row: {
+          commission_cents: number
+          created_at: string
+          currency: string
+          declared_amount_cents: number
+          id: string
+          paid_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          commission_cents: number
+          created_at?: string
+          currency?: string
+          declared_amount_cents: number
+          id?: string
+          paid_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          commission_cents?: number
+          created_at?: string
+          currency?: string
+          declared_amount_cents?: number
+          id?: string
+          paid_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       links: {
         Row: {
           created_at: string

@@ -18,6 +18,7 @@ import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 import { createConnectOnboardingLink, createConnectLoginLink, getConnectStatus, getPlatformConnectStatus } from "@/lib/stripe-connect.functions";
+import { createCommissionCheckout, listCommissionPayments } from "@/lib/commission.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 
 export const Route = createFileRoute("/dashboard")({
@@ -221,6 +222,8 @@ function DashboardPage() {
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
         <PayoutsSection isPro={profile.is_pro} />
+
+        {!profile.is_pro && <CommissionSection />}
 
         <BillingSection
           isPro={profile.is_pro}
@@ -1093,6 +1096,126 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
           </button>
         )}
       </div>
+    </section>
+  );
+}
+
+function CommissionSection() {
+  const createCheckout = useServerFn(createCommissionCheckout);
+  const listPayments = useServerFn(listCommissionPayments);
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { data, refetch } = useQuery({
+    queryKey: ["commission-payments"],
+    queryFn: () => listPayments(),
+    staleTime: 30_000,
+  });
+
+  const declaredCents = Math.round((parseFloat(amount.replace(",", ".")) || 0) * 100);
+  const commissionCents = declaredCents > 0 ? Math.max(50, Math.round(declaredCents * 0.05)) : 0;
+
+  const handlePay = async () => {
+    if (declaredCents < 100) {
+      toast.error("Montant minimum : 1 €");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await createCheckout({ data: { declaredAmountCents: declaredCents } });
+      if (res?.url) window.location.href = res.url;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la création du paiement");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("commission") === "success") {
+      toast.success("Merci ! Votre versement a bien été reçu.");
+      url.searchParams.delete("commission");
+      window.history.replaceState({}, "", url.toString());
+      refetch();
+    } else if (url.searchParams.get("commission") === "cancel") {
+      url.searchParams.delete("commission");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [refetch]);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Wallet className="h-5 w-5" /> Versement commission 5%
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            En plan gratuit, vous gardez 100% de vos ventes via vos liens de paiement externes.
+            En contrepartie, vous reversez 5% de votre chiffre d'affaires à la plateforme.
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+        <label className="block">
+          <span className="text-sm font-medium">Chiffre d'affaires réalisé (€)</span>
+          <input
+            type="number"
+            min="1"
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="ex : 250.00"
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+        </label>
+
+        {declaredCents > 0 && (
+          <div className="text-sm">
+            Commission à verser :{" "}
+            <span className="font-semibold">{(commissionCents / 100).toFixed(2)} €</span>
+            <span className="text-muted-foreground"> (5%)</span>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handlePay}
+          disabled={loading || declaredCents < 100}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+        >
+          <Wallet className="h-4 w-4" />
+          {loading ? "Redirection…" : `Verser ${commissionCents > 0 ? (commissionCents / 100).toFixed(2) + " €" : "5%"}`}
+        </button>
+      </div>
+
+      {data?.payments && data.payments.length > 0 && (
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold mb-2">Historique</h3>
+          <ul className="divide-y divide-border rounded-lg border border-border">
+            {data.payments.map((p) => (
+              <li key={p.id} className="flex items-center justify-between px-3 py-2 text-sm">
+                <div>
+                  <div className="font-medium">{(p.commission_cents / 100).toFixed(2)} €</div>
+                  <div className="text-xs text-muted-foreground">
+                    sur {(p.declared_amount_cents / 100).toFixed(2)} € — {new Date(p.created_at).toLocaleDateString("fr-FR")}
+                  </div>
+                </div>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    p.status === "paid"
+                      ? "bg-green-500/10 text-green-600"
+                      : "bg-amber-500/10 text-amber-600"
+                  }`}
+                >
+                  {p.status === "paid" ? "Payé" : "En attente"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
