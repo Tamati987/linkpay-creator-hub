@@ -875,6 +875,8 @@ function ProductRowItem({
           </div>
           <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description"
             className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…)"
+            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         </div>
       </div>
       <div className="flex items-center justify-end gap-2">
