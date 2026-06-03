@@ -109,9 +109,8 @@ function PricingPage() {
               <Feature included>2 liens réseaux sociaux (Facebook, Instagram…)</Feature>
               <Feature included>1 lien vidéo (YouTube, TikTok…)</Feature>
               <Feature included>Page publique mobile-first</Feature>
-              <Feature included>Vente de produits digitaux</Feature>
-              <Feature>Commission de 5% sur les ventes</Feature>
               <Feature>Branding Zeno visible</Feature>
+              <Feature missing>Vente de produits digitaux</Feature>
               <Feature missing>Vidéos lisibles dans la page</Feature>
               <Feature missing>Newsletter & capture d'emails</Feature>
               <Feature missing>Domaine personnalisé</Feature>
