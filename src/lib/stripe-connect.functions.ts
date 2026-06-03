@@ -126,3 +126,30 @@ export const getConnectStatus = createServerFn({ method: "POST" })
     const s = await syncStatus(profile.stripe_connect_account_id, userId);
     return { connected: true, ...s };
   });
+
+export const getPlatformConnectStatus = createServerFn({ method: "POST" })
+  .handler(async () => {
+    try {
+      const stripe = getStripe(process.env.STRIPE_SECRET_KEY ?? "");
+      // Listing connected accounts requires the platform to have signed up for Connect.
+      await stripe.accounts.list({ limit: 1 });
+      return { enabled: true, error: null as string | null };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("signed up for Connect")) {
+        return {
+          enabled: false,
+          error:
+            "Stripe Connect n'est pas activé sur votre compte plateforme. Activez-le sur https://dashboard.stripe.com/connect puis rechargez la page.",
+        };
+      }
+      if (message.includes("required permissions") || message.includes("restricted key")) {
+        return {
+          enabled: false,
+          error:
+            "La clé Stripe configurée n'a pas les permissions Connect requises. Utilisez une clé secrète Stripe complète (sk_live_… ou sk_test_…).",
+        };
+      }
+      return { enabled: false, error: "Impossible de vérifier le statut Stripe Connect pour le moment." };
+    }
+  });
