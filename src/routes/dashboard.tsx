@@ -1062,7 +1062,7 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
         ) : (
           <button
             onClick={startOnboarding}
-            disabled={busy === "onboard"}
+            disabled={busy === "onboard" || platform?.enabled === false}
             className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
           >
             <Wallet className="h-3.5 w-3.5" />
