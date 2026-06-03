@@ -80,6 +80,7 @@ export type Database = {
           file_path: string | null
           id: string
           image_url: string | null
+          payout_url: string | null
           position: number
           price_cents: number
           title: string
@@ -91,6 +92,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           image_url?: string | null
+          payout_url?: string | null
           position?: number
           price_cents?: number
           title: string
@@ -102,6 +104,7 @@ export type Database = {
           file_path?: string | null
           id?: string
           image_url?: string | null
+          payout_url?: string | null
           position?: number
           price_cents?: number
           title?: string
