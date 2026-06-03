@@ -217,11 +217,7 @@ function DashboardPage() {
           links={links}
           onChanged={refresh}
         />
-        <ProductsSection userId={user.id} products={products} onChanged={refresh} />
-
-        <PayoutsSection isPro={profile.is_pro} />
-
-        {!profile.is_pro && <CommissionSection />}
+        <ProductsSection userId={user.id} products={products} isPro={profile.is_pro} onChanged={refresh} />
 
         <BillingSection
           isPro={profile.is_pro}
