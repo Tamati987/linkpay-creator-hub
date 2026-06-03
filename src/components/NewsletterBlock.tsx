@@ -1,35 +1,28 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Mail } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { subscribeToNewsletter } from "@/lib/newsletter.functions";
 
 export function NewsletterBlock({ userId }: { userId: string }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const subscribe = useServerFn(subscribeToNewsletter);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .insert({ user_id: userId, email });
-    setLoading(false);
-    if (error) {
-      if (error.code === "23505") {
-        // already subscribed — treat as success
-      } else if (error.code === "23514") {
-        toast.error("Adresse email invalide");
-        return;
-      } else {
-        console.error("[newsletter] insert failed", error);
-        toast.error("Impossible de s'inscrire. Réessayez plus tard.");
-        return;
-      }
+    try {
+      await subscribe({ data: { userId, email } });
+      setDone(true);
+      toast.success("Inscription confirmée");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Impossible de s'inscrire.");
+    } finally {
+      setLoading(false);
     }
-    setDone(true);
-    toast.success("Inscription confirmée");
   };
 
   return (
