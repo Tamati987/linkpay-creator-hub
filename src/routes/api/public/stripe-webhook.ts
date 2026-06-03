@@ -96,6 +96,16 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
                   .update({ purchased_avatars: Array.from(owned) })
                   .eq("id", meta.user_id);
               }
+              if (meta.kind === "commission_payment" && meta.commission_payment_id) {
+                await supabaseAdmin
+                  .from("commission_payments")
+                  .update({
+                    status: "paid",
+                    paid_at: new Date().toISOString(),
+                    stripe_payment_intent_id: pi.id,
+                  })
+                  .eq("id", meta.commission_payment_id);
+              }
               break;
             }
             case "account.updated": {
