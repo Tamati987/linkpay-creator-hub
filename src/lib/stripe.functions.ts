@@ -94,7 +94,7 @@ export const createProductCheckout = createServerFn({ method: "POST" })
 
     const { data: seller } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_connect_account_id, stripe_connect_charges_enabled")
+      .select("stripe_connect_account_id, stripe_connect_charges_enabled, is_pro")
       .eq("id", product.user_id)
       .maybeSingle();
 
@@ -102,7 +102,8 @@ export const createProductCheckout = createServerFn({ method: "POST" })
       throw new Error("Ce vendeur n'a pas encore activé les paiements.");
     }
 
-    const platformFee = Math.round(product.price_cents * 0.05);
+    // Pro sellers: 0% commission. Free sellers: 5%.
+    const platformFee = seller.is_pro ? 0 : Math.round(product.price_cents * 0.05);
 
     const origin = getOrigin();
     const session = await stripe.checkout.sessions.create({
