@@ -127,6 +127,9 @@ export type Database = {
           id: string
           is_pro: boolean
           purchased_avatars: string[]
+          stripe_connect_account_id: string | null
+          stripe_connect_charges_enabled: boolean
+          stripe_connect_payouts_enabled: boolean
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string
@@ -141,6 +144,9 @@ export type Database = {
           id: string
           is_pro?: boolean
           purchased_avatars?: string[]
+          stripe_connect_account_id?: string | null
+          stripe_connect_charges_enabled?: boolean
+          stripe_connect_payouts_enabled?: boolean
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
@@ -155,6 +161,9 @@ export type Database = {
           id?: string
           is_pro?: boolean
           purchased_avatars?: string[]
+          stripe_connect_account_id?: string | null
+          stripe_connect_charges_enabled?: boolean
+          stripe_connect_payouts_enabled?: boolean
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
