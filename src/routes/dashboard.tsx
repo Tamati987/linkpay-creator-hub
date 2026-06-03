@@ -949,7 +949,8 @@ function BillingSection({
   );
 }
 
-function PayoutsSection() {
+function PayoutsSection({ isPro }: { isPro: boolean }) {
+  const commissionText = isPro ? "Commission plateforme : 0% (avantage Pro)" : "Commission plateforme : 5%";
   const getStatus = useServerFn(getConnectStatus);
   const onboard = useServerFn(createConnectOnboardingLink);
   const loginLink = useServerFn(createConnectLoginLink);
