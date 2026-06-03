@@ -48,6 +48,7 @@ type LinkRow = { id: string; title: string; url: string; position: number; kind:
 type ProductRow = {
   id: string; title: string; description: string;
   price_cents: number; image_url: string | null; position: number;
+  payout_url: string | null;
 };
 
 function DashboardPage() {
