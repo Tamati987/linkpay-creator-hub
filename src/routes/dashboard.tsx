@@ -1020,10 +1020,10 @@ function PayoutsSection({ isPro }: { isPro: boolean }) {
             {isLoading
               ? "Chargement…"
               : active
-                ? "L'argent de vos ventes est versé directement sur votre compte bancaire. Commission plateforme : 5%."
+                ? `L'argent de vos ventes est versé directement sur votre compte bancaire. ${commissionText}.`
                 : incomplete
                   ? "Votre inscription Stripe est incomplète. Finalisez-la pour recevoir vos paiements."
-                  : "Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. Commission plateforme : 5%."}
+                  : `Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. ${commissionText}.`}
           </p>
         </div>
         {active ? (
