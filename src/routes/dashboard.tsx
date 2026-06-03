@@ -728,61 +728,46 @@ function ProductsSection({
         )}
       </div>
 
-      {isPro ? (
-        <div className="mt-4 space-y-2">
-          <div className="grid gap-2 sm:grid-cols-[2fr_1fr]">
-            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre du produit"
-              className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-            <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" min="0" step="0.01" placeholder="Prix $ (ex. 9.90)"
-              className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-          </div>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
-            className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-          <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — requis"
-            className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
-              {imagePreview ? <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" /> : <ImageIcon className="h-3.5 w-3.5" />}
-              {image ? image.name : "Visuel (image)"}
-              <input type="file" accept="image/*" hidden onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
-            </label>
-            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
-              <Upload className="h-3.5 w-3.5" />
-              {file ? file.name : "Fichier (PDF, ZIP…)"}
-              <input type="file" hidden
-                onChange={(e) => {
-                  const f = e.target.files?.[0] ?? null;
-                  if (f && f.size > MAX_PRODUCT_FILE_BYTES) {
-                    e.target.value = ""; toast.error(PRODUCT_FILE_TOO_LARGE_MSG); return;
-                  }
-                  setFile(f);
-                }} />
-            </label>
-            <button onClick={add} disabled={loading}
-              className="ml-auto inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-medium text-primary-foreground shadow-glow disabled:opacity-60">
-              <Plus className="h-3.5 w-3.5" /> {loading ? "Ajout…" : "Ajouter"}
-            </button>
-          </div>
-          <p className="text-[11px] text-muted-foreground">
-            L'acheteur est redirigé vers votre lien de paiement (Stripe, PayPal, Gumroad…) — vous encaissez directement, 0% de commission.
-          </p>
+      <div className="mt-4 space-y-2">
+        <div className="grid gap-2 sm:grid-cols-[2fr_1fr]">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre du produit"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" min="0" step="0.01" placeholder="Prix $ (ex. 9.90)"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         </div>
-      ) : (
-        <Link to="/pricing"
-          className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-primary/40 bg-primary/10 p-4 transition hover:bg-primary/15">
-          <div>
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-              <Crown className="h-4 w-4" /> Vente réservée aux abonnés Pro
-            </div>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Passez à Pro pour vendre vos produits digitaux via votre propre lien de paiement (Stripe, PayPal, Gumroad…). 0% de commission.
-            </p>
-          </div>
-          <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-gradient-button px-3 text-xs font-medium text-primary-foreground shadow-glow">
-            Passer à Pro
-          </span>
-        </Link>
-      )}
+        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
+          className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — requis"
+          className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
+            {imagePreview ? <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" /> : <ImageIcon className="h-3.5 w-3.5" />}
+            {image ? image.name : "Visuel (image)"}
+            <input type="file" accept="image/*" hidden onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
+          </label>
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
+            <Upload className="h-3.5 w-3.5" />
+            {file ? file.name : "Fichier (PDF, ZIP…)"}
+            <input type="file" hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null;
+                if (f && f.size > MAX_PRODUCT_FILE_BYTES) {
+                  e.target.value = ""; toast.error(PRODUCT_FILE_TOO_LARGE_MSG); return;
+                }
+                setFile(f);
+              }} />
+          </label>
+          <button onClick={add} disabled={loading}
+            className="ml-auto inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-medium text-primary-foreground shadow-glow disabled:opacity-60">
+            <Plus className="h-3.5 w-3.5" /> {loading ? "Ajout…" : "Ajouter"}
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {isPro
+            ? "Produits illimités. L'acheteur est redirigé vers votre lien de paiement — vous encaissez directement, 0% de commission."
+            : "Plan Gratuit : 1 produit max. L'acheteur est redirigé vers votre lien de paiement — vous encaissez directement."}
+        </p>
+      </div>
     </Card>
   );
 }
