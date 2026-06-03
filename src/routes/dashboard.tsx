@@ -948,3 +948,108 @@ function BillingSection({
     </section>
   );
 }
+
+function PayoutsSection() {
+  const getStatus = useServerFn(getConnectStatus);
+  const onboard = useServerFn(createConnectOnboardingLink);
+  const loginLink = useServerFn(createConnectLoginLink);
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<"onboard" | "dashboard" | null>(null);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["connect-status"],
+    queryFn: () => getStatus(),
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("connect") === "return" || params.get("connect") === "refresh") {
+      qc.invalidateQueries({ queryKey: ["connect-status"] });
+    }
+  }, [qc]);
+
+  const startOnboarding = async () => {
+    setBusy("onboard");
+    try {
+      const { url } = await onboard();
+      if (url) window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const openDashboard = async () => {
+    setBusy("dashboard");
+    try {
+      const { url } = await loginLink();
+      if (url) window.open(url, "_blank");
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const connected = !!status?.connected;
+  const active = !!status?.charges_enabled && !!status?.payouts_enabled;
+  const incomplete = connected && !active;
+
+  return (
+    <section className="rounded-2xl glass p-5 shadow-soft">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="text-sm font-semibold flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-primary" />
+            Paiements vendeur
+            {active && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500">
+                <Check className="h-3 w-3" /> Activé
+              </span>
+            )}
+            {incomplete && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
+                À compléter
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isLoading
+              ? "Chargement…"
+              : active
+                ? "L'argent de vos ventes est versé directement sur votre compte bancaire. Commission plateforme : 5%."
+                : incomplete
+                  ? "Votre inscription Stripe est incomplète. Finalisez-la pour recevoir vos paiements."
+                  : "Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. Commission plateforme : 5%."}
+          </p>
+        </div>
+        {active ? (
+          <button
+            onClick={openDashboard}
+            disabled={busy === "dashboard"}
+            className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-4 text-xs font-medium hover:bg-surface-elevated disabled:opacity-60"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            {busy === "dashboard" ? "Ouverture…" : "Mon compte Stripe"}
+          </button>
+        ) : (
+          <button
+            onClick={startOnboarding}
+            disabled={busy === "onboard"}
+            className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-button px-4 text-xs font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
+          >
+            <Wallet className="h-3.5 w-3.5" />
+            {busy === "onboard"
+              ? "Redirection…"
+              : incomplete
+                ? "Compléter mon inscription"
+                : "Activer les paiements"}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
