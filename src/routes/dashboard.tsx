@@ -670,6 +670,10 @@ function ProductsSection({
   const add = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const trimmedPayout = payoutUrl.trim();
+    if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
+      return toast.error("Le lien de paiement doit commencer par https://");
+    }
     setLoading(true);
     let filePath: string | null = null;
     if (file) {
