@@ -740,6 +740,8 @@ function ProductsSection({
         </div>
         <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — optionnel"
+          className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         <div className="flex flex-wrap items-center gap-2">
           <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
             {imagePreview ? <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" /> : <ImageIcon className="h-3.5 w-3.5" />}
