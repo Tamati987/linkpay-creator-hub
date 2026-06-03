@@ -98,6 +98,20 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               }
               break;
             }
+            case "account.updated": {
+              const acc = event.data.object as Stripe.Account;
+              const userId = acc.metadata?.user_id;
+              if (userId) {
+                await supabaseAdmin
+                  .from("profiles")
+                  .update({
+                    stripe_connect_charges_enabled: !!acc.charges_enabled,
+                    stripe_connect_payouts_enabled: !!acc.payouts_enabled,
+                  })
+                  .eq("id", userId);
+              }
+              break;
+            }
             case "invoice.payment_succeeded": {
               const inv = event.data.object as Stripe.Invoice;
               // @ts-ignore - subscription is on Invoice

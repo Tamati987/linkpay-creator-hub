@@ -1,40 +1,72 @@
 ## Objectif
-Mettre en place un abonnement mensuel Pro via Stripe (le prix `STRIPE_PRO_PRICE_ID` est déjà configuré).
 
-## Ce qui existe déjà
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` (secrets)
-- Table `profiles` avec `is_pro`, `stripe_customer_id`, `stripe_subscription_id`
-- Authentification utilisateur
+Permettre à chaque vendeur de recevoir l'argent de ses ventes **directement sur son propre compte bancaire**, via Stripe Connect Express. La plateforme prélève automatiquement **5% de commission** sur chaque vente.
 
-## Étapes
+## Comment ça marche pour le vendeur
 
-1. **Server function `create-checkout`** (`src/lib/stripe-checkout.functions.ts`)
-   - Protégée par `requireSupabaseAuth`
-   - Crée/retrouve le customer Stripe par email
-   - Crée une Checkout Session en mode `subscription` avec `STRIPE_PRO_PRICE_ID`
-   - Retourne l'URL de checkout
+1. Depuis son dashboard, le vendeur clique sur "Connecter mon compte de paiement"
+2. Il est redirigé vers un formulaire Stripe (5–10 min : email, infos perso, IBAN/RIB)
+3. Une fois validé, un badge "Paiements activés ✓" s'affiche dans son dashboard
+4. À chaque vente : l'acheteur paie 10$ → 0.50$ va à la plateforme (5%) + frais Stripe (~0.59$) → ~8.91$ arrivent directement sur son compte Stripe, puis virement automatique vers sa banque (généralement sous 2–7 jours)
+5. Il peut consulter ses ventes/virements via un bouton "Mon compte Stripe" (Express Dashboard)
 
-2. **Server function `check-subscription`** (`src/lib/stripe-subscription.functions.ts`)
-   - Protégée par `requireSupabaseAuth`
-   - Interroge Stripe pour vérifier l'abonnement actif
-   - Met à jour `profiles.is_pro`, `stripe_customer_id`, `stripe_subscription_id`
-   - Retourne `{ subscribed, subscription_end }`
+**Important** : Tant qu'un vendeur n'a pas connecté son compte Stripe, le bouton "Acheter" sur ses produits sera désactivé (avec un message au vendeur). Sinon l'argent irait sur ton compte sans moyen propre de le reverser.
 
-3. **Server function `customer-portal`** (`src/lib/stripe-portal.functions.ts`)
-   - Ouvre le Stripe Customer Portal pour gérer/annuler l'abonnement
+## Changements techniques
 
-4. **Webhook Stripe** (`src/routes/api/public/stripe-webhook.ts` — vérifier s'il existe déjà)
-   - Vérifie la signature avec `STRIPE_WEBHOOK_SECRET`
-   - Gère `customer.subscription.created/updated/deleted` et `checkout.session.completed`
-   - Met à jour `profiles.is_pro` en conséquence
+### 1. Base de données (migration)
+Ajouter sur `profiles` :
+- `stripe_connect_account_id` (text, nullable) — ID du compte Connect du vendeur
+- `stripe_connect_charges_enabled` (boolean, défaut false) — peut-il recevoir des paiements
+- `stripe_connect_payouts_enabled` (boolean, défaut false) — peut-il recevoir des virements
+- Protéger ces colonnes dans `protect_profile_billing_columns` (service_role only)
 
-5. **UI**
-   - Bouton "Passer Pro" (ouvre checkout dans un nouvel onglet)
-   - Affichage du statut Pro dans le profil
-   - Bouton "Gérer mon abonnement" (portal) si abonné
-   - Auto-refresh du statut au login et après retour du checkout
+### 2. Nouvelles server functions (`src/lib/stripe-connect.functions.ts`)
+- `createConnectAccount` — crée un `stripe.accounts.create({ type: "express" })` si pas existant, stocke l'ID
+- `createConnectOnboardingLink` — génère un `accountLinks.create` pour l'onboarding, retourne l'URL
+- `createConnectLoginLink` — génère un `loginLinks.create` pour que le vendeur accède à son dashboard Express
+- `getConnectStatus` — récupère le statut (charges_enabled, payouts_enabled) et sync en DB
 
-## Questions avant de coder
-- Prix mensuel de l'abonnement Pro ? (le `STRIPE_PRO_PRICE_ID` existe — je peux le récupérer depuis Stripe pour confirmer)
-- Un seul tier "Pro" ou plusieurs niveaux (Basic/Pro/Premium) ?
-- Quels avantages débloque "Pro" dans l'app (à protéger côté UI/serveur) ?
+### 3. Modifier `createProductCheckout` (`src/lib/stripe.functions.ts`)
+- Lire `stripe_connect_account_id` + `stripe_connect_charges_enabled` du vendeur
+- Si non connecté/non activé → erreur "Le vendeur n'a pas encore activé les paiements"
+- Ajouter à la session : `payment_intent_data: { application_fee_amount: Math.round(price * 0.05), transfer_data: { destination: seller_account_id } }`
+
+### 4. Webhook (`stripe-webhook.ts`)
+Ajouter le handler `account.updated` pour synchroniser `charges_enabled` / `payouts_enabled` quand le vendeur termine/met à jour son onboarding.
+
+### 5. UI Dashboard (`src/routes/dashboard.tsx`)
+Nouvelle section "Paiements" :
+- Si pas de compte connecté → bouton "Activer les paiements" (lance l'onboarding)
+- Si onboarding en cours / incomplet → bouton "Compléter mon inscription"
+- Si activé → badge vert "Paiements activés" + bouton "Mon compte Stripe" (login link) + rappel "Commission 5% par vente"
+
+### 6. UI Produit (`src/components/ProductCard.tsx`)
+Si le vendeur n'a pas activé Connect, désactiver le bouton "Acheter" avec un message discret type "Paiements bientôt disponibles".
+
+## Détails financiers (exemple sur vente 10$)
+
+```text
+Acheteur paie               10.00 $
+- Frais Stripe (~2.9%+0.30) -0.59 $
+- Commission plateforme 5%  -0.50 $  → vers ton compte
+─────────────────────────────────
+Vendeur reçoit               8.91 $  → sur son compte bancaire
+```
+
+Les frais Stripe sont à la charge du vendeur par défaut (configurable plus tard si besoin).
+
+## Pré-requis côté Stripe Dashboard
+
+Avant le premier vendeur, tu devras (une seule fois) :
+1. Activer **Stripe Connect** sur ton compte Stripe (gratuit, demande quelques infos sur ta plateforme)
+2. Configurer le branding Connect (logo, couleur) dans Settings → Connect
+
+Je te guiderai au moment où ce sera nécessaire.
+
+## Hors scope (pour plus tard si tu veux)
+
+- Reverser une partie de la commission au vendeur
+- Permettre au vendeur de choisir qui paie les frais Stripe
+- Système de remboursements depuis l'app
+- Multi-devises (actuellement USD uniquement)
