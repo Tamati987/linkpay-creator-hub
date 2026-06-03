@@ -219,7 +219,7 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        <PayoutsSection />
+        <PayoutsSection isPro={profile.is_pro} />
 
         <BillingSection
           isPro={profile.is_pro}
