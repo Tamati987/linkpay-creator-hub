@@ -151,6 +151,31 @@ function PublicProfile() {
     .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
   const isOwner = currentUserId === profile.id;
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined"
+      ? window.location.href
+      : `https://zenolinkkitapp.com/${profile.username}`;
+    const title = `${profile.display_name || `@${profile.username}`} — Zeno`;
+    const text = profile.bio || `Découvrez la page de @${profile.username}`;
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share({ title, text, url });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed — fall back to copy
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Lien copié !");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Impossible de copier le lien");
+    }
+  };
 
   return (
     <div className="min-h-screen pb-16">
