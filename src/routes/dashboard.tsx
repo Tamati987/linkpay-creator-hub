@@ -48,6 +48,7 @@ type LinkRow = { id: string; title: string; url: string; position: number; kind:
 type ProductRow = {
   id: string; title: string; description: string;
   price_cents: number; image_url: string | null; position: number;
+  payout_url: string | null;
 };
 
 function DashboardPage() {
@@ -97,7 +98,7 @@ function DashboardPage() {
           supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, purchased_avatars").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
-          supabase.from("products").select("id, title, description, price_cents, image_url, position, user_id, created_at").eq("user_id", uid)
+          supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("purchases").select("amount_cents").eq("seller_id", uid),
           supabase.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("user_id", uid),
@@ -659,6 +660,7 @@ function ProductsSection({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [payoutUrl, setPayoutUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -668,6 +670,10 @@ function ProductsSection({
   const add = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const trimmedPayout = payoutUrl.trim();
+    if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
+      return toast.error("Le lien de paiement doit commencer par https://");
+    }
     setLoading(true);
     let filePath: string | null = null;
     if (file) {
@@ -691,6 +697,7 @@ function ProductsSection({
     const { error } = await supabase.from("products").insert({
       user_id: userId, title, description, price_cents: Math.round(priceNum * 100),
       file_path: filePath, image_url: imageUrl, position: products.length,
+      payout_url: trimmedPayout || null,
     });
     setLoading(false);
     if (error) {
@@ -700,7 +707,7 @@ function ProductsSection({
       console.error("[products.insert]", error);
       return toast.error("Impossible d'ajouter ce produit. Réessayez.");
     }
-    setTitle(""); setDescription(""); setPrice(""); setFile(null); setImage(null);
+    setTitle(""); setDescription(""); setPrice(""); setPayoutUrl(""); setFile(null); setImage(null);
     onChanged();
     toast.success("Produit ajouté");
   };
@@ -733,6 +740,8 @@ function ProductsSection({
         </div>
         <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — optionnel"
+          className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         <div className="flex flex-wrap items-center gap-2">
           <label className="relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-3 text-xs text-muted-foreground transition hover:bg-surface-elevated">
             {imagePreview ? <img src={imagePreview} alt="" className="h-6 w-6 rounded object-cover" /> : <ImageIcon className="h-3.5 w-3.5" />}
@@ -757,7 +766,7 @@ function ProductsSection({
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Format PDF ou E-pub recommandé (max. 25 Mo).
+          Format PDF ou E-pub recommandé (max. 25 Mo). Avec un lien de paiement, l'acheteur est redirigé vers votre Stripe/PayPal — vous encaissez directement, 0% de commission.
         </p>
       </div>
     </Card>
@@ -789,6 +798,7 @@ function ProductRowItem({
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState((product.price_cents / 100).toString());
+  const [payoutUrl, setPayoutUrl] = useState(product.payout_url ?? "");
   const [image, setImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const imagePreview = image ? URL.createObjectURL(image) : product.image_url;
@@ -796,12 +806,18 @@ function ProductRowItem({
   const cancel = () => {
     setEditing(false);
     setTitle(product.title); setDescription(product.description);
-    setPrice((product.price_cents / 100).toString()); setImage(null);
+    setPrice((product.price_cents / 100).toString());
+    setPayoutUrl(product.payout_url ?? "");
+    setImage(null);
   };
 
   const save = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const trimmedPayout = payoutUrl.trim();
+    if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
+      return toast.error("Le lien de paiement doit commencer par https://");
+    }
     setSaving(true);
     let imageUrl = product.image_url;
     if (image) {
@@ -814,6 +830,7 @@ function ProductRowItem({
     }
     const { error } = await supabase.from("products").update({
       title, description, price_cents: Math.round(priceNum * 100), image_url: imageUrl,
+      payout_url: trimmedPayout || null,
     }).eq("id", product.id);
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -857,6 +874,8 @@ function ProductRowItem({
               className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
           </div>
           <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description"
+            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…)"
             className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         </div>
       </div>
