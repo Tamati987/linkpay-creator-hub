@@ -223,6 +223,8 @@ function DashboardPage() {
 
         <PayoutsSection isPro={profile.is_pro} />
 
+        {!profile.is_pro && <CommissionSection />}
+
         <BillingSection
           isPro={profile.is_pro}
           hasSubscription={profile.is_pro}
