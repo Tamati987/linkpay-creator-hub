@@ -766,7 +766,7 @@ function ProductsSection({
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Format PDF ou E-pub recommandé (max. 25 Mo).
+          Format PDF ou E-pub recommandé (max. 25 Mo). Avec un lien de paiement, l'acheteur est redirigé vers votre Stripe/PayPal — vous encaissez directement, 0% de commission.
         </p>
       </div>
     </Card>
