@@ -219,7 +219,7 @@ function DashboardPage() {
         />
         <ProductsSection userId={user.id} products={products} onChanged={refresh} />
 
-        <PayoutsSection />
+        <PayoutsSection isPro={profile.is_pro} />
 
         <BillingSection
           isPro={profile.is_pro}
@@ -949,7 +949,8 @@ function BillingSection({
   );
 }
 
-function PayoutsSection() {
+function PayoutsSection({ isPro }: { isPro: boolean }) {
+  const commissionText = isPro ? "Commission plateforme : 0% (avantage Pro)" : "Commission plateforme : 5%";
   const getStatus = useServerFn(getConnectStatus);
   const onboard = useServerFn(createConnectOnboardingLink);
   const loginLink = useServerFn(createConnectLoginLink);
@@ -1019,10 +1020,10 @@ function PayoutsSection() {
             {isLoading
               ? "Chargement…"
               : active
-                ? "L'argent de vos ventes est versé directement sur votre compte bancaire. Commission plateforme : 5%."
+                ? `L'argent de vos ventes est versé directement sur votre compte bancaire. ${commissionText}.`
                 : incomplete
                   ? "Votre inscription Stripe est incomplète. Finalisez-la pour recevoir vos paiements."
-                  : "Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. Commission plateforme : 5%."}
+                  : `Connectez un compte Stripe pour recevoir l'argent de vos ventes directement sur votre compte bancaire. ${commissionText}.`}
           </p>
         </div>
         {active ? (
