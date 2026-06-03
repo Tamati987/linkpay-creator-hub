@@ -1,0 +1,1 @@
+GRANT SELECT (payout_url) ON public.products TO anon, authenticated;
