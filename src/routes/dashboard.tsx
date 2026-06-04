@@ -896,6 +896,96 @@ function ProductRowItem({
   );
 }
 
+function CustomDomainSection({ username }: { username: string }) {
+  const [copied, setCopied] = useState(false);
+  const cnameTarget = "zenolinkkitapp.com";
+
+  const copyCname = async () => {
+    try {
+      await navigator.clipboard.writeText(cnameTarget);
+      setCopied(true);
+      toast.success("Cible CNAME copiée");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Impossible de copier");
+    }
+  };
+
+  return (
+    <Card
+      title="Domaine personnalisé"
+      action={
+        <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+          <Crown className="h-3 w-3" /> Pro
+        </span>
+      }
+    >
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface/50 p-3">
+          <Globe className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+          <div className="text-xs text-muted-foreground">
+            Connectez votre propre domaine (ex.{" "}
+            <span className="font-mono text-foreground">vraimonnom.com</span>)
+            à votre page Zeno pour une présence 100% à votre image.
+          </div>
+        </div>
+
+        <ol className="space-y-3 text-xs">
+          <li className="flex gap-3">
+            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">1</span>
+            <div>
+              <div className="font-medium text-foreground">Achetez votre domaine</div>
+              <div className="text-muted-foreground">
+                Chez un registrar (OVH, Gandi, Namecheap…) — environ 10€/an.
+              </div>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">2</span>
+            <div className="flex-1">
+              <div className="font-medium text-foreground">Configurez un enregistrement CNAME</div>
+              <div className="text-muted-foreground">
+                Dans le DNS de votre domaine, pointez-le vers&nbsp;:
+              </div>
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-border bg-surface px-2.5 py-1.5">
+                <span className="flex-1 truncate font-mono text-[11px] text-foreground">{cnameTarget}</span>
+                <button
+                  onClick={copyCname}
+                  className="rounded-md border border-border bg-surface-elevated px-2 py-1 text-[10px] font-medium hover:bg-surface"
+                >
+                  {copied ? "Copié ✓" : "Copier"}
+                </button>
+              </div>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">3</span>
+            <div>
+              <div className="font-medium text-foreground">Activez votre domaine</div>
+              <div className="text-muted-foreground">
+                Envoyez-nous votre domaine à{" "}
+                <a href="mailto:support@zenolinkkitapp.com?subject=Activation domaine personnalisé" className="text-primary underline">
+                  support@zenolinkkitapp.com
+                </a>
+                . Nous provisionnons le SSL et activons le routage sous 24h.
+              </div>
+            </div>
+          </li>
+        </ol>
+
+        <div className="rounded-xl border border-border/60 bg-surface/50 p-3 text-[11px] text-muted-foreground">
+          <span className="font-medium text-foreground">Votre page actuelle :</span>{" "}
+          <span className="font-mono">zenolinkkitapp.com/{username}</span>
+          <br />
+          <span className="font-medium text-foreground">Après activation :</span>{" "}
+          <span className="font-mono">vraimonnom.com</span>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+
 function BillingSection({
   isPro, hasSubscription,
 }: { isPro: boolean; hasSubscription: boolean }) {
