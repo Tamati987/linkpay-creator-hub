@@ -160,7 +160,7 @@ function PricingPage() {
               <Feature included highlight>Bloc Newsletter pour capturer les emails</Feature>
               <Feature included highlight>0% de commission sur les ventes</Feature>
               <Feature included highlight>Suppression totale du branding Zeno</Feature>
-              <Feature included>Domaine personnalisé (.com, .fr…)</Feature>
+              <Feature included>Importer son propre nom de domaine</Feature>
               <Feature included>Statistiques détaillées</Feature>
               <Feature included>Notifications email à chaque vente</Feature>
               <Feature included>Support prioritaire</Feature>
