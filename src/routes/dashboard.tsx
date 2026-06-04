@@ -217,7 +217,9 @@ function DashboardPage() {
           links={links}
           onChanged={refresh}
         />
-        <ProductsSection userId={user.id} products={products} isPro={profile.is_pro} onChanged={refresh} />
+        {profile.is_pro && (
+          <ProductsSection userId={user.id} products={products} isPro={profile.is_pro} onChanged={refresh} />
+        )}
 
         <BillingSection
           isPro={profile.is_pro}
