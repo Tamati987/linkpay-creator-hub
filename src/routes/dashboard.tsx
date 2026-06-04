@@ -220,6 +220,8 @@ function DashboardPage() {
         {profile.is_pro && (
           <ProductsSection userId={user.id} products={products} isPro={profile.is_pro} onChanged={refresh} />
         )}
+        {profile.is_pro && <CustomDomainSection username={profile.username} />}
+
 
         <BillingSection
           isPro={profile.is_pro}
