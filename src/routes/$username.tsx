@@ -227,7 +227,7 @@ function PublicProfile() {
         </div>
 
         <div className="mt-8 space-y-6">
-          {products.length > 0 && (
+          {profile.is_pro && products.length > 0 && (
             <div className="space-y-3">
               {products.map((p) => (
                 <ProductCard key={p.id} product={p} sellerId={profile.id} />
