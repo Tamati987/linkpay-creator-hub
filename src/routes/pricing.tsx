@@ -108,8 +108,8 @@ function PricingPage() {
             <ul className="mt-6 space-y-3 text-sm">
               <Feature included>2 liens réseaux sociaux (Facebook, Instagram…)</Feature>
               <Feature included>1 lien vidéo (YouTube, TikTok…)</Feature>
-              <Feature included>Page publique mobile-first</Feature>
               <Feature>Branding Zeno visible</Feature>
+              <Feature missing>Site internet public</Feature>
               <Feature missing>Vente de produits digitaux</Feature>
               <Feature missing>Vidéos lisibles dans la page</Feature>
               <Feature missing>Newsletter & capture d'emails</Feature>
