@@ -95,7 +95,7 @@ export function NotificationPanel() {
             action: row.link
               ? {
                   label: "Voir",
-                  onClick: () => navigate({ to: row.link! }),
+                  onClick: () => navigate({ to: row.link! as string } as any),
                 }
               : undefined,
           });
@@ -112,7 +112,7 @@ export function NotificationPanel() {
       setItems((prev) => prev.map((i) => (i.id === n.id ? { ...i, is_read: true } : i)));
       markOne({ data: { id: n.id } }).catch(() => {});
     }
-    if (n.link) navigate({ to: n.link });
+    if (n.link) navigate({ to: n.link as string } as any);
     setOpen(false);
   };
 
