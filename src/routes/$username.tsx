@@ -322,9 +322,9 @@ function PublicProfile() {
         {!profile.is_pro && (
           <Link
             to="/"
-            className="mt-12 flex items-center justify-center gap-2 text-white/70 transition hover:text-white"
+            className="mt-12 flex items-center justify-center gap-2 opacity-70 transition hover:opacity-100"
           >
-            <Sparkles className="h-4 w-4 text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.8)]" />
+            <Sparkles className={`h-4 w-4 ${theme.footerAccent}`} />
             <span className="text-lg font-bold tracking-tight">zeno</span>
           </Link>
         )}
