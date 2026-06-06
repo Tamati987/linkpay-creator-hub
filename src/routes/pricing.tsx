@@ -74,6 +74,18 @@ function PricingPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-5 py-14">
+        {paypal === "success" && (
+          <div className="mx-auto mb-8 flex max-w-2xl items-start gap-3 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
+            <div>
+              <p className="font-medium text-foreground">Merci pour votre paiement !</p>
+              <p className="mt-1 text-muted-foreground">
+                Votre compte Zeno Pro sera activé sous 24h. Vous recevrez un email
+                de confirmation dès que c'est fait.
+              </p>
+            </div>
+          </div>
+        )}
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border glass px-3 py-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3" /> Tarifs simples & transparents
