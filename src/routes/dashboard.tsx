@@ -18,6 +18,7 @@ import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
+import { THEMES, FREE_THEMES, PRO_THEMES, type Theme } from "@/lib/themes";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
