@@ -1077,7 +1077,6 @@ function ThemeSection({
   onSaved: () => void;
   onLocked: (f: string) => void;
 }) {
-  const { THEMES, FREE_THEMES, PRO_THEMES } = require("@/lib/themes") as typeof import("@/lib/themes");
   const current = profile.theme ?? "neon";
   const [saving, setSaving] = useState<string | null>(null);
 
