@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { WebsiteCard } from "@/components/WebsiteCard";
+import { FollowSection } from "@/components/FollowSection";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { getTheme } from "@/lib/themes";
@@ -265,6 +266,8 @@ function PublicProfile() {
               {profile.bio}
             </p>
           )}
+
+          <FollowSection profileId={profile.id} isOwner={isOwner} theme={theme} />
 
           {/* Icônes sociales en ligne, sans cercle */}
           {socials.length > 0 && (
