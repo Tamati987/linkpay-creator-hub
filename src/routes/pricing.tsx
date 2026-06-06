@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -7,8 +6,9 @@ import {
   Globe, EyeOff, BellRing, Crown, BarChart3,
 } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
-import { createProCheckout } from "@/lib/stripe.functions";
 import { supabase } from "@/integrations/supabase/client";
+
+const PAYPAL_PRO_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/DP894ECPS5JSU";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
