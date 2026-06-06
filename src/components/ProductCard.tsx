@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, ShoppingBag } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 
 type Product = {
   id: string;
@@ -13,7 +13,7 @@ type Product = {
 const formatPrice = (cents: number) =>
   new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "USD",
+    currency: "EUR",
   }).format(cents / 100);
 
 export function ProductCard({
@@ -27,48 +27,43 @@ export function ProductCard({
   if (!product.payout_url) return null;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-      {product.image_url && (
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="block w-full overflow-hidden"
-          aria-label={product.title}
-        >
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-3 p-3 text-left transition hover:bg-white/[0.06]"
+      >
+        {product.image_url ? (
           <img
             src={product.image_url}
             alt={product.title}
-            className="aspect-[16/9] w-full object-cover transition hover:opacity-95"
+            className="h-16 w-16 flex-none rounded-xl object-cover"
           />
-        </button>
-      )}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition hover:bg-surface-elevated"
-      >
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-button shadow-glow">
-            <ShoppingBag className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold">{product.title}</div>
-            <div className="text-xs text-muted-foreground">Produit digital</div>
-          </div>
+        ) : (
+          <div className="h-16 w-16 flex-none rounded-xl bg-gradient-to-br from-fuchsia-500/40 to-violet-600/40" />
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold text-white">{product.title}</div>
+          {product.description && (
+            <div className="mt-0.5 line-clamp-2 text-xs text-white/60">
+              {product.description}
+            </div>
+          )}
         </div>
-        <span className="rounded-lg bg-accent px-2.5 py-1 text-sm font-semibold tabular-nums">
-          {formatPrice(product.price_cents)}
-        </span>
+        <div className="flex flex-none items-center gap-1.5">
+          <span className="text-sm font-semibold tabular-nums text-fuchsia-300">
+            {formatPrice(product.price_cents)}
+          </span>
+          <ChevronRight className="h-4 w-4 text-white/40" />
+        </div>
       </button>
 
       {open && (
-        <div className="border-t border-border bg-surface px-4 py-4">
-          {product.description && (
-            <p className="mb-3 text-sm text-muted-foreground">{product.description}</p>
-          )}
+        <div className="border-t border-white/10 bg-black/30 px-4 py-3">
           <a
             href={product.payout_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-button text-sm font-medium text-primary-foreground shadow-glow"
+            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-500 text-sm font-medium text-white shadow-[0_0_30px_-5px_rgba(217,70,239,0.6)]"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             Acheter — {formatPrice(product.price_cents)}
