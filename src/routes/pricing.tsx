@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -7,8 +6,9 @@ import {
   Globe, EyeOff, BellRing, Crown, BarChart3,
 } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
-import { createProCheckout } from "@/lib/stripe.functions";
 import { supabase } from "@/integrations/supabase/client";
+
+const PAYPAL_PRO_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/DP894ECPS5JSU";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -32,30 +32,22 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
-  const startCheckout = useServerFn(createProCheckout);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const goPro = async () => {
     setLoading(true);
-    const checkoutWindow = window.open("", "_blank");
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        checkoutWindow?.close();
         navigate({ to: "/login" });
         return;
       }
-      const { url } = await startCheckout();
-      if (url) {
-        if (checkoutWindow) checkoutWindow.location.href = url;
-        else window.location.href = url;
-      } else {
-        checkoutWindow?.close();
-      }
+      // Open PayPal checkout. Pro activation is handled manually after payment confirmation.
+      window.open(PAYPAL_PRO_CHECKOUT_URL, "_blank", "noopener,noreferrer");
+      toast.success("Une fois le paiement effectué, votre compte Pro sera activé sous 24h.");
     } catch (e: any) {
-      checkoutWindow?.close();
-      toast.error(e?.message || "Erreur lors du paiement");
+      toast.error(e?.message || "Erreur lors de la redirection");
     } finally {
       setLoading(false);
     }
