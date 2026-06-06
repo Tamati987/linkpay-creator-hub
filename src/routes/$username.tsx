@@ -187,6 +187,19 @@ function PublicProfile() {
 
   return (
     <div className={`relative min-h-screen overflow-hidden ${theme.page} pb-20`}>
+      {/* Photo de couverture en arrière-plan */}
+      {profile.cover_url && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-64 overflow-hidden">
+          <img
+            src={profile.cover_url}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-[var(--zeno-bg-dark,#000)]" />
+        </div>
+      )}
+
       {/* Halos décoratifs du thème */}
       {theme.halos.length > 0 && (
         <div className="pointer-events-none absolute inset-0 -z-0">
