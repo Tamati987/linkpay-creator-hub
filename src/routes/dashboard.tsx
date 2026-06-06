@@ -42,6 +42,7 @@ type Profile = {
   bio: string; avatar_url: string | null; is_pro: boolean;
   cover_url: string | null;
   purchased_avatars: string[] | null;
+  theme: string | null;
 };
 type LinkRow = { id: string; title: string; url: string; position: number; kind: "standard" | "social" | "video" };
 type ProductRow = {
