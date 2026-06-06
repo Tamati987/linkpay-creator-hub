@@ -16,9 +16,6 @@ export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): PricingSearch => ({
     paypal: s.paypal === "success" ? "success" : undefined,
   }),
-});
-
-export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Tarifs — Zeno Pro" },
@@ -40,6 +37,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
+  const { paypal } = Route.useSearch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
