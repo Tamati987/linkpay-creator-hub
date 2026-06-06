@@ -1063,3 +1063,99 @@ function BillingSection({
   );
 }
 
+
+// ============================================================================
+// THEME SECTION — choisir l'apparence de la page publique
+// ============================================================================
+function ThemeSection({
+  profile,
+  onSaved,
+  onLocked,
+}: {
+  profile: Profile;
+  onSaved: () => void;
+  onLocked: (f: string) => void;
+}) {
+  const { THEMES, FREE_THEMES, PRO_THEMES } = require("@/lib/themes") as typeof import("@/lib/themes");
+  const current = profile.theme ?? "neon";
+  const [saving, setSaving] = useState<string | null>(null);
+
+  const select = async (id: string) => {
+    const target = THEMES[id as keyof typeof THEMES];
+    if (target.pro && !profile.is_pro) {
+      onLocked("Thèmes Pro");
+      return;
+    }
+    if (id === current) return;
+    setSaving(id);
+    const { error } = await supabase.from("profiles").update({ theme: id }).eq("id", profile.id);
+    setSaving(null);
+    if (error) { toast.error("Impossible de changer le thème"); return; }
+    toast.success("Thème mis à jour");
+    onSaved();
+  };
+
+  const renderTile = (t: typeof FREE_THEMES[number]) => {
+    const selected = current === t.id;
+    const locked = t.pro && !profile.is_pro;
+    return (
+      <button
+        key={t.id}
+        type="button"
+        onClick={() => select(t.id)}
+        disabled={saving !== null}
+        className={`group relative overflow-hidden rounded-xl border text-left transition ${
+          selected ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-primary/40"
+        }`}
+      >
+        <div className="aspect-[4/5] w-full" style={{ background: t.preview }} />
+        <div className="flex items-center justify-between gap-2 bg-card px-3 py-2">
+          <span className="truncate text-xs font-medium">{t.name}</span>
+          {selected ? (
+            <Check className="h-3.5 w-3.5 flex-none text-primary" />
+          ) : locked ? (
+            <Lock className="h-3.5 w-3.5 flex-none text-muted-foreground" />
+          ) : t.pro ? (
+            <Crown className="h-3.5 w-3.5 flex-none text-amber-400" />
+          ) : null}
+        </div>
+        {locked && (
+          <div className="absolute inset-0 grid place-items-center bg-background/40 backdrop-blur-[2px] opacity-0 transition group-hover:opacity-100">
+            <span className="rounded-full bg-background/90 px-2 py-1 text-[10px] font-semibold">Pro</span>
+          </div>
+        )}
+      </button>
+    );
+  };
+
+  return (
+    <section className="glass rounded-2xl p-5 shadow-soft">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold">Apparence de votre page</h2>
+          <p className="text-xs text-muted-foreground">
+            Choisissez un thème visuel — visible par tous vos visiteurs.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Gratuits</div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {FREE_THEMES.map(renderTile)}
+          </div>
+        </div>
+        <div>
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <Crown className="h-3 w-3 text-amber-400" />
+            Pro
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {PRO_THEMES.map(renderTile)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
