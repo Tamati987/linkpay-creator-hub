@@ -48,11 +48,12 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <div className="min-h-screen">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-6">
         <Link to="/">
           <ZenoLogo />
         </Link>
-        <nav className="flex items-center gap-2 text-sm">
+        <UserSearchBar className="mx-auto hidden w-full max-w-sm sm:block" />
+        <nav className="ml-auto flex items-center gap-2 text-sm">
           <Link
             to="/pricing"
             className="hidden rounded-lg px-3 py-2 text-muted-foreground transition hover:text-foreground sm:inline"
@@ -73,6 +74,9 @@ function Landing() {
           </Link>
         </nav>
       </header>
+      <div className="mx-auto block max-w-6xl px-6 sm:hidden">
+        <UserSearchBar />
+      </div>
 
       <section className="mx-auto max-w-3xl px-6 pb-24 pt-16 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-border glass px-3 py-1 text-xs text-muted-foreground">
