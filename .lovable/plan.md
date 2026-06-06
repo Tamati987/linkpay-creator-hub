@@ -1,50 +1,61 @@
+# Follow System + Real-time Notifications
 
-# Redesign de la page publique `/$username` au style "Luna Ray"
+## 1. Database (single migration)
 
-Tu veux que la page publique de chaque créateur ressemble à l'interface du téléphone dans le visuel pub : fond noir profond, halo violet/rose néon, avatar avec anneau gradient, cartes de liens sombres avec icônes de marque colorées, sections "À la une" pour vidéos et produits.
+### `follows` table
+- `id`, `follower_id`, `following_id`, `created_at`
+- UNIQUE(`follower_id`, `following_id`), CHECK(`follower_id <> following_id`)
+- RLS: SELECT public (so counts work for everyone), INSERT/DELETE only when `auth.uid() = follower_id`
+- GRANTs: SELECT to anon+authenticated, INSERT/DELETE to authenticated, ALL to service_role
 
-## Changements visuels
+### `notifications` table
+- `id`, `user_id` (recipient), `actor_id`, `type` ('new_link'|'new_product'|'new_follow'|'profile_update'), `message`, `link`, `is_read` (default false), `created_at`
+- RLS: SELECT/UPDATE only where `auth.uid() = user_id`; no INSERT for clients (service role / SECURITY DEFINER triggers only)
+- GRANTs: SELECT, UPDATE to authenticated; ALL to service_role
+- Added to `supabase_realtime` publication; REPLICA IDENTITY FULL
 
-### Fond & ambiance
-- Fond noir profond (`#0a0010` → `#000`) avec un **halo radial violet/rose** centré derrière le contenu (effet "spotlight" comme la pub).
-- Suppression du fond clair actuel sur cette page uniquement (le dashboard reste inchangé).
-- Léger reflet/gradient en bas de page.
+### `notification_settings` table
+- `user_id` PK, booleans: `new_link`, `new_product`, `new_follow`, `profile_update` (defaults true)
+- RLS: owner can SELECT/INSERT/UPDATE own row
 
-### En-tête profil
-- Avatar circulaire avec **anneau gradient rose→violet** lumineux (glow), badge vérifié violet à côté du nom si `is_pro`.
-- Nom en blanc, gras, taille augmentée.
-- Bio centrée, plus claire.
-- Bouton "..." discret en haut à droite (menu partage).
+### Triggers (SECURITY DEFINER functions)
+- `on_follow_insert` → notify `following_id` (type `new_follow`)
+- `on_link_insert` → fan out to all followers of `links.user_id` (type `new_link`)
+- `on_product_insert` → fan out to all followers of `products.user_id` (type `new_product`)
+- `on_profile_update` → if `avatar_url` or `bio` changed, fan out (type `profile_update`)
+- Each trigger respects recipient's `notification_settings`
+- After insert: trim per-user notifications to most recent 50
 
-### Rangée d'icônes sociales
-- Icônes sociales en ligne (Instagram, TikTok, YouTube, X, Email) **sans cercle de fond**, juste l'icône blanche/colorée sur fond transparent, alignée horizontalement sous la bio (comme la maquette).
+## 2. Server functions (`src/lib/follow.functions.ts`, `src/lib/notifications.functions.ts`)
 
-### Cartes de liens
-- Cartes sombres semi-transparentes (`bg-white/5`, `border-white/10`, `backdrop-blur`), coins arrondis 14px.
-- Icône de marque à gauche (carré arrondi coloré : rouge YouTube, dégradé Insta, noir TikTok…), titre + sous-titre (`@handle` ou description courte), chevron `>` à droite.
-- Bouton CTA principal (ex: "Réserver un appel") avec petit accent étoile violette ✨.
+- `getFollowState({ profileId })` — returns `{ isFollowing, followerCount, followingCount }` (uses admin client for counts, no auth required)
+- `followUser({ profileId })` / `unfollowUser({ profileId })` — `requireSupabaseAuth`
+- `listNotifications()` — last 50 for current user
+- `markAllRead()` / `markRead({ id })`
+- `getNotificationSettings()` / `updateNotificationSettings({...})`
 
-### Section "À la une" (vidéos)
-- Petit titre `À la une` aligné à gauche en blanc.
-- Carte vidéo plus grande avec thumbnail, overlay play, indicateurs de pagination (•••) en bas.
+## 3. UI
 
-### Section Produits digitaux (Pro)
-- Carte produit horizontale : image carrée à gauche, titre + description courte + prix en violet à droite, style sombre cohérent.
+### Public profile (`src/routes/$username.tsx`)
+- Follower / following counts under header
+- Follow / Following toggle button (hidden on own profile, prompts login when signed out)
 
-### Footer
-- Logo "✦ zeno" en bas centré avec glow violet (au lieu du texte actuel "Propulsé par Zeno").
+### Notification panel (`src/components/NotificationPanel.tsx`)
+- Rendered in `_authenticated/route.tsx` so it only shows for signed-in users in app pages (dashboard, admin, settings) — NOT on public profiles
+- Fixed left bell button with unread badge; click expands panel
+- List of 50, avatars, relative time, unread highlight, click → navigate + mark read
+- "Mark all as read" header button
+- Empty state
+- Mobile: bottom-left floating bell (same component, responsive positioning)
+- Supabase Realtime subscription on `notifications` filtered by `user_id=eq.<me>`: prepend new row, bump badge, sonner toast with "View" action
 
-## Détails techniques
+### Settings
+- New section in `dashboard.tsx` (or settings area) with 4 toggles bound to `notification_settings`
 
-- Modifier uniquement `src/routes/$username.tsx` (page publique) + créer un wrapper `<div>` qui force le fond sombre indépendamment du thème global.
-- Mettre à jour `src/components/ProductCard.tsx` pour le style sombre.
-- Ajouter quelques tokens dans `src/styles.css` : `--zeno-glow`, `--zeno-bg-dark`, gradient anneau avatar.
-- Aucun changement de logique métier ni de schéma BDD.
-- Le dashboard, la landing et les autres pages restent inchangés.
+## 4. Technical notes
+- Counts via `head:true, count:'exact'` queries
+- Realtime requires `ALTER PUBLICATION supabase_realtime ADD TABLE notifications`
+- Trim-to-50 done in trigger via `DELETE ... WHERE id NOT IN (SELECT id ... ORDER BY created_at DESC LIMIT 50)`
+- Profile update trigger compares OLD vs NEW to avoid spam on unrelated column changes
 
-## Hors scope
-- Pas de changement des données affichées (mêmes liens/produits/vidéos).
-- Pas de nouveau champ "badge vérifié" en BDD : on affiche le badge automatiquement si `is_pro = true`.
-- Pas de modification du dashboard d'édition.
-
-Veux-tu que je garde aussi le bouton "Partager" et "Dashboard" actuels (repositionnés en haut à droite façon menu "..."), ou bien je les remplace par un vrai menu déroulant ?
+Proceed?
