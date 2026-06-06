@@ -3,12 +3,20 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   Check, Sparkles, X, ArrowLeft, ShoppingBag, PlayCircle, Mail,
-  Globe, EyeOff, BellRing, Crown, BarChart3,
+  Globe, EyeOff, BellRing, Crown, BarChart3, CheckCircle2,
 } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 const PAYPAL_PRO_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/DP894ECPS5JSU";
+
+type PricingSearch = { paypal?: "success" };
+
+export const Route = createFileRoute("/pricing")({
+  validateSearch: (s: Record<string, unknown>): PricingSearch => ({
+    paypal: s.paypal === "success" ? "success" : undefined,
+  }),
+});
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
