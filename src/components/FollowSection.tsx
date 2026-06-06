@@ -97,10 +97,10 @@ export function FollowSection({
           type="button"
           onClick={handleClick}
           disabled={busy}
-          className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition disabled:opacity-60 ${
+          className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-glow transition disabled:opacity-60 ${
             iFollow
-              ? `${theme.card}`
-              : `bg-gradient-button text-primary-foreground shadow-glow`
+              ? `border border-current/20 ${theme.card}`
+              : `bg-gradient-button text-primary-foreground hover:scale-[1.03]`
           }`}
         >
           {busy ? (
