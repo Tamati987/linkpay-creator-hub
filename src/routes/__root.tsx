@@ -10,6 +10,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
+import { NotificationPanel } from "@/components/NotificationPanel";
 
 function NotFoundComponent() {
   return (
@@ -106,7 +107,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Outlet />
-        <Toaster theme="dark" position="top-center" />
+        <NotificationPanel />
+        <Toaster theme="dark" position="bottom-left" />
       </AuthProvider>
     </QueryClientProvider>
   );
