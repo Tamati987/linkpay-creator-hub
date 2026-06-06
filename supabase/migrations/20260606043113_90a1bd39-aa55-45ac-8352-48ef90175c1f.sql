@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_theme_plan() FROM PUBLIC, anon, authenticated;
