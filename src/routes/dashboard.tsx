@@ -206,6 +206,7 @@ function DashboardPage() {
         </div>
 
         <ProfileSection profile={profile} onSaved={refresh} />
+        <ThemeSection profile={profile} onSaved={refresh} onLocked={setLockedFeature} />
         <LinksSection
           userId={user.id}
           links={links}
