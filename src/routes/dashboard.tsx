@@ -95,7 +95,7 @@ function DashboardPage() {
       const uid = user!.id;
       const [{ data: profile }, { data: links }, { data: products }, { data: purchases }, { count: subs }] =
         await Promise.all([
-          supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, purchased_avatars").eq("id", uid).maybeSingle(),
+          supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, purchased_avatars, theme").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at").eq("user_id", uid)
