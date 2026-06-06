@@ -1095,7 +1095,7 @@ function ThemeSection({
     onSaved();
   };
 
-  const renderTile = (t: typeof FREE_THEMES[number]) => {
+  const renderTile = (t: Theme) => {
     const selected = current === t.id;
     const locked = t.pro && !profile.is_pro;
     return (
