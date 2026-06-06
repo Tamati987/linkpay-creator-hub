@@ -177,56 +177,150 @@ function PublicProfile() {
     }
   };
 
+  const socials = links.filter((l) => l.kind === "social");
+  const videos = links.filter((l) => l.kind === "video");
+  const websites = links.filter((l) => l.kind === "standard");
+
   return (
-    <div className="min-h-screen pb-16">
-      {profile.cover_url && (
-        <div className="relative h-40 w-full overflow-hidden sm:h-56">
-          <img src={profile.cover_url} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-        </div>
-      )}
-      <div className={`mx-auto max-w-md px-5 ${profile.cover_url ? "-mt-12" : "pt-12"}`}>
+    <div className="relative min-h-screen overflow-hidden bg-[#07020d] pb-20 text-white">
+      {/* Halos néon violet/rose */}
+      <div className="pointer-events-none absolute inset-0 -z-0">
+        <div className="absolute left-1/2 top-1/3 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-fuchsia-600/30 blur-[140px]" />
+        <div className="absolute left-1/4 top-2/3 h-[500px] w-[500px] rounded-full bg-violet-700/30 blur-[120px]" />
+        <div className="absolute right-0 top-0 h-[400px] w-[400px] rounded-full bg-pink-500/20 blur-[120px]" />
+      </div>
+
+      {/* Top bar */}
+      <div className="relative z-10 mx-auto flex max-w-md items-center justify-between px-5 pt-5">
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label="Partager"
+          className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-white/80 backdrop-blur-md transition hover:bg-white/10"
+        >
+          {copied ? <Check className="h-4 w-4 text-fuchsia-300" /> : <Share2 className="h-4 w-4" />}
+        </button>
+        {isOwner ? (
+          <Link
+            to="/dashboard"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-white/80 backdrop-blur-md transition hover:bg-white/10"
+          >
+            <LayoutDashboard className="h-3.5 w-3.5" />
+            Dashboard
+          </Link>
+        ) : (
+          <button
+            type="button"
+            aria-label="Plus"
+            className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-white/80 backdrop-blur-md transition hover:bg-white/10"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-md px-5 pt-6">
+        {/* Profil */}
         <div className="flex flex-col items-center text-center">
-          {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.display_name}
-              className="h-28 w-28 rounded-full border-[3px] border-primary/30 object-cover shadow-glow ring-4 ring-primary/10"
-            />
-          ) : (
-            <div className="grid h-28 w-28 place-items-center rounded-full border-[3px] border-primary/30 bg-surface text-2xl font-semibold text-muted-foreground shadow-glow ring-4 ring-primary/10">
-              {initials}
-            </div>
-          )}
-          <h1 className="mt-5 text-xl font-semibold tracking-tight">
-            {profile.display_name || `@${profile.username}`}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
-          {profile.bio && (
-            <p className="mt-3 text-balance text-sm text-foreground/80">{profile.bio}</p>
-          )}
-          <div className="mt-4 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
-            >
-              {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Share2 className="h-3.5 w-3.5" />}
-              {copied ? "Copié" : "Partager"}
-            </button>
-            {isOwner && (
-              <Link
-                to="/dashboard"
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
-              >
-                <LayoutDashboard className="h-3.5 w-3.5" />
-                Dashboard
-              </Link>
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-fuchsia-500 via-pink-500 to-violet-500 blur-md opacity-80" />
+            {profile.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={profile.display_name}
+                className="relative h-24 w-24 rounded-full border-2 border-white/20 object-cover"
+              />
+            ) : (
+              <div className="relative grid h-24 w-24 place-items-center rounded-full border-2 border-white/20 bg-black text-2xl font-semibold text-white">
+                {initials}
+              </div>
             )}
           </div>
+
+          <h1 className="mt-4 flex items-center gap-1.5 text-xl font-bold tracking-tight text-white">
+            {profile.display_name || `@${profile.username}`}
+            {profile.is_pro && (
+              <BadgeCheck className="h-5 w-5 fill-fuchsia-500 text-white" />
+            )}
+          </h1>
+          {profile.bio && (
+            <p className="mt-2 max-w-[18rem] text-balance text-sm text-white/70">
+              {profile.bio}
+            </p>
+          )}
+
+          {/* Icônes sociales en ligne, sans cercle */}
+          {socials.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-5">
+              {socials.map((l) => {
+                const brand = detectSocialBrand(l.url);
+                const Icon = brand?.Icon;
+                return (
+                  <a
+                    key={l.id}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={brand?.label ?? l.title}
+                    title={l.title}
+                    className="text-white/85 transition hover:scale-110 hover:text-white"
+                  >
+                    {Icon ? <Icon className="h-[22px] w-[22px]" /> : <Sparkles className="h-[22px] w-[22px]" />}
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
 
+        {/* Contenu */}
         <div className="mt-8 space-y-6">
+          {/* Sites / liens standards en cartes sombres */}
+          {websites.length > 0 && (
+            <div className="space-y-2.5">
+              {websites.map((l) => {
+                const brand = detectSocialBrand(l.url);
+                const Icon = brand?.Icon;
+                let host = "";
+                try { host = new URL(l.url).hostname.replace(/^www\./, ""); } catch { host = l.url; }
+                return (
+                  <a
+                    key={l.id}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-md transition hover:bg-white/[0.08]"
+                  >
+                    <span
+                      className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-white/5"
+                      style={brand ? { color: brand.color } : { color: "#a78bfa" }}
+                    >
+                      {Icon ? <Icon className="h-5 w-5" /> : <Globe className="h-5 w-5" />}
+                    </span>
+                    <div className="min-w-0 flex-1 text-left">
+                      <div className="truncate text-sm font-semibold text-white">{l.title}</div>
+                      <div className="truncate text-xs text-white/50">{host}</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 flex-none text-white/40 transition group-hover:text-white/80" />
+                  </a>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Section À la une (vidéos) */}
+          {videos.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-sm font-semibold text-white/90">À la une</h2>
+              {videos.map((l) => {
+                const video = detectVideo(l.url);
+                if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
+                return null;
+              })}
+            </div>
+          )}
+
+          {/* Produits digitaux (Pro uniquement) */}
           {profile.is_pro && products.length > 0 && (
             <div className="space-y-3">
               {products.map((p) => (
@@ -235,117 +329,23 @@ function PublicProfile() {
             </div>
           )}
 
-          {(() => {
-            const socials = links.filter((l) => l.kind === "social");
-            const videos = links.filter((l) => l.kind === "video");
-            const websites = links.filter((l) => l.kind === "standard");
-
-            return (
-              <>
-                {socials.length > 0 && (
-                  <div>
-                    <h2 className="mb-2 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Réseaux sociaux</h2>
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {socials.map((l) => {
-                        const brand = detectSocialBrand(l.url);
-                        const Icon = brand?.Icon;
-                        return (
-                          <a
-                            key={l.id}
-                            href={l.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            aria-label={brand?.label ?? l.title}
-                            title={l.title}
-                            className="grid h-12 w-12 place-items-center rounded-full border border-border bg-surface shadow-soft transition hover:scale-105 hover:bg-surface-elevated"
-                            style={brand ? { color: brand.color } : undefined}
-                          >
-                            {Icon ? <Icon className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {videos.length > 0 && (
-                  <div className="space-y-3">
-                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Vidéos</h2>
-                    {videos.map((l) => {
-                      const video = detectVideo(l.url);
-                      if (video) return <VideoEmbed key={l.id} url={l.url} title={l.title} />;
-                      return null;
-                    })}
-                  </div>
-                )}
-
-                {websites.length > 0 && (
-                  <div className="space-y-3">
-                    <h2 className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">Sites internet</h2>
-                    {websites.map((l) =>
-                      profile.is_pro ? (
-                        <div
-                          key={l.id}
-                          className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft"
-                        >
-                          <div className="flex items-center gap-2 border-b border-border bg-surface-elevated px-3 py-2 text-xs">
-                            <Globe className="h-3.5 w-3.5 text-primary" />
-                            <span className="flex-1 truncate font-medium">{l.title}</span>
-                            <a
-                              href={l.url}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="inline-flex items-center gap-1 text-muted-foreground transition hover:text-foreground"
-                            >
-                              Ouvrir <ExternalLink className="h-3 w-3" />
-                            </a>
-                          </div>
-                          <iframe
-                            src={l.url}
-                            title={l.title}
-                            loading="lazy"
-                            sandbox="allow-scripts allow-popups-to-escape-sandbox allow-forms"
-                            referrerPolicy="no-referrer"
-                            className="h-[420px] w-full bg-background"
-                          />
-                        </div>
-                      ) : (
-                        <a
-                          key={l.id}
-                          href={l.url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="group flex items-center gap-3 rounded-2xl glass px-4 py-4 text-sm font-medium shadow-soft transition hover:bg-surface-elevated"
-                        >
-                          <span className="grid h-8 w-8 place-items-center rounded-md bg-surface-elevated text-primary">
-                            <Globe className="h-4 w-4" />
-                          </span>
-                          <span className="flex-1">{l.title}</span>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
-                        </a>
-                      ),
-                    )}
-                  </div>
-                )}
-              </>
-            );
-          })()}
-
           {profile.is_pro && <NewsletterBlock userId={profile.id} />}
 
           {links.length === 0 && products.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">
               Aucun lien pour l'instant.
             </div>
           )}
         </div>
 
+        {/* Footer logo Zeno */}
         {!profile.is_pro && (
           <Link
             to="/"
-            className="mt-12 flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+            className="mt-12 flex items-center justify-center gap-2 text-white/70 transition hover:text-white"
           >
-            <Sparkles className="h-3 w-3" /> Propulsé par Zeno
+            <Sparkles className="h-4 w-4 text-fuchsia-400 drop-shadow-[0_0_8px_rgba(217,70,239,0.8)]" />
+            <span className="text-lg font-bold tracking-tight">zeno</span>
           </Link>
         )}
       </div>
