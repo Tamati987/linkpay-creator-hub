@@ -1,14 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { BadgeCheck, Check, ChevronRight, ExternalLink, Globe, LayoutDashboard, MoreHorizontal, Share2, Sparkles } from "lucide-react";
+import { BadgeCheck, Check, LayoutDashboard, MoreHorizontal, Share2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
+import { WebsiteCard } from "@/components/WebsiteCard";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
+import { getTheme } from "@/lib/themes";
 
 type Profile = {
   id: string;
@@ -18,12 +20,13 @@ type Profile = {
   avatar_url: string | null;
   cover_url: string | null;
   is_pro: boolean;
+  theme: string | null;
 };
 
 async function fetchProfile(username: string) {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, username, display_name, bio, avatar_url, cover_url, is_pro")
+    .select("id, username, display_name, bio, avatar_url, cover_url, is_pro, theme")
     .eq("username", username)
     .maybeSingle();
   if (error) throw error;
