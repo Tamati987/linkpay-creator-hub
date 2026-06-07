@@ -17,6 +17,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
+import { getOwnPurchasedAvatars } from "@/lib/profile.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 import { NotificationSettingsSection } from "@/components/NotificationSettingsSection";
 import { THEMES, FREE_THEMES, PRO_THEMES, type Theme } from "@/lib/themes";
@@ -95,21 +96,22 @@ function DashboardPage() {
     queryKey: ["dashboard", user?.id],
     queryFn: async () => {
       const uid = user!.id;
-      const [{ data: profile }, { data: links }, { data: products }, { data: purchases }, { count: subs }] =
+      const [{ data: profile }, { data: links }, { data: products }, { data: purchases }, { count: subs }, ownAvatars] =
         await Promise.all([
-          supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, purchased_avatars, theme").eq("id", uid).maybeSingle(),
+          supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, theme").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("purchases").select("amount_cents").eq("seller_id", uid),
           supabase.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("user_id", uid),
+          getOwnPurchasedAvatars().catch(() => ({ purchasedAvatars: [] as string[] })),
         ]);
       return {
-        profile: profile as Profile | null,
+        profile: profile ? ({ ...profile, purchased_avatars: ownAvatars.purchasedAvatars } as Profile) : null,
         links: (links ?? []) as LinkRow[],
         products: (products ?? []) as ProductRow[],
-        earningsCents: (purchases ?? []).reduce((s, p: { amount_cents: number }) => s + p.amount_cents, 0),
+        earningsCents: (purchases ?? []).reduce((s: number, p: { amount_cents: number }) => s + p.amount_cents, 0),
         salesCount: (purchases ?? []).length,
         subscribersCount: subs ?? 0,
       };
