@@ -111,7 +111,7 @@ function DashboardPage() {
         profile: profile ? ({ ...profile, purchased_avatars: ownAvatars.purchasedAvatars } as Profile) : null,
         links: (links ?? []) as LinkRow[],
         products: (products ?? []) as ProductRow[],
-        earningsCents: (purchases ?? []).reduce((s, p: { amount_cents: number }) => s + p.amount_cents, 0),
+        earningsCents: (purchases ?? []).reduce((s: number, p: { amount_cents: number }) => s + p.amount_cents, 0),
         salesCount: (purchases ?? []).length,
         subscribersCount: subs ?? 0,
       };
