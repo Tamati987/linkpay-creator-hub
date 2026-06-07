@@ -17,6 +17,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { inferLinkKind, isVideoUrl } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { createPortalSession, createProCheckout } from "@/lib/stripe.functions";
+import { getOwnPurchasedAvatars } from "@/lib/profile.functions";
 import { AvatarPicker } from "@/components/AvatarPicker";
 import { NotificationSettingsSection } from "@/components/NotificationSettingsSection";
 import { THEMES, FREE_THEMES, PRO_THEMES, type Theme } from "@/lib/themes";
