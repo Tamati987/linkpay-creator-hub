@@ -84,16 +84,13 @@ export const sendMessage = createServerFn({ method: "POST" })
     const me = context.userId;
     if (me === data.recipientId) throw new Error("Impossible de s'envoyer un message.");
 
-    // Enforce connection: at least one follow relation exists
-    const { data: rel } = await supabaseAdmin
-      .from("follows")
+    // Verify recipient exists
+    const { data: recipient } = await supabaseAdmin
+      .from("profiles")
       .select("id")
-      .or(
-        `and(follower_id.eq.${me},following_id.eq.${data.recipientId}),and(follower_id.eq.${data.recipientId},following_id.eq.${me})`,
-      )
-      .limit(1)
+      .eq("id", data.recipientId)
       .maybeSingle();
-    if (!rel) throw new Error("Vous devez suivre cet utilisateur (ou être suivi par lui) pour lui envoyer un message.");
+    if (!recipient) throw new Error("Destinataire introuvable.");
 
     const { data: row, error } = await supabaseAdmin
       .from("messages")

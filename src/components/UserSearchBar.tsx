@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Loader2, X } from "lucide-react";
+import { Search, Loader2, X, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 type Result = {
   id: string;
@@ -18,6 +19,7 @@ export function UserSearchBar({
   className?: string;
   placeholder?: string;
 }) {
+  const { user } = useAuth();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
@@ -95,12 +97,12 @@ export function UserSearchBar({
           ) : (
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
-                <li key={r.id}>
+                <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
                   <Link
                     to="/$username"
                     params={{ username: r.username }}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 transition hover:bg-accent"
+                    className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2"
                   >
                     {r.avatar_url ? (
                       <img
@@ -125,6 +127,17 @@ export function UserSearchBar({
                       </div>
                     </div>
                   </Link>
+                  {user && user.id !== r.id && (
+                    <Link
+                      to="/messages"
+                      search={{ to: r.id }}
+                      onClick={() => setOpen(false)}
+                      aria-label={`Écrire à ${r.username}`}
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
