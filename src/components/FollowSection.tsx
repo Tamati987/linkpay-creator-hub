@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { UserPlus, UserCheck, Loader2 } from "lucide-react";
+import { MessageCircle, UserPlus, UserCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import {
@@ -93,25 +93,38 @@ export function FollowSection({
       </div>
 
       {!isOwner && (
-        <button
-          type="button"
-          onClick={handleClick}
-          disabled={busy}
-          className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-glow transition disabled:opacity-60 ${
-            iFollow
-              ? `border border-current/20 ${theme.card}`
-              : `bg-gradient-button text-primary-foreground hover:scale-[1.03]`
-          }`}
-        >
-          {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : iFollow ? (
-            <UserCheck className="h-4 w-4" />
-          ) : (
-            <UserPlus className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleClick}
+            disabled={busy}
+            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-glow transition disabled:opacity-60 ${
+              iFollow
+                ? `border border-current/20 ${theme.card}`
+                : `bg-gradient-button text-primary-foreground hover:scale-[1.03]`
+            }`}
+          >
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : iFollow ? (
+              <UserCheck className="h-4 w-4" />
+            ) : (
+              <UserPlus className="h-4 w-4" />
+            )}
+            {iFollow ? "Abonné" : "Suivre"}
+          </button>
+          {user && (
+            <Link
+              to="/messages"
+              search={{ to: profileId }}
+              className={`inline-flex items-center gap-2 rounded-full border border-current/20 px-4 py-2.5 text-sm font-semibold transition hover:scale-[1.03] ${theme.card}`}
+              aria-label="Envoyer un message"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Message
+            </Link>
           )}
-          {iFollow ? "Abonné" : "Suivre"}
-        </button>
+        </div>
       )}
     </div>
   );

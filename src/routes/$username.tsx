@@ -9,6 +9,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { WebsiteCard } from "@/components/WebsiteCard";
 import { FollowSection } from "@/components/FollowSection";
+import { UserSearchBar } from "@/components/UserSearchBar";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { getTheme } from "@/lib/themes";
@@ -236,6 +237,11 @@ function PublicProfile() {
           </button>
         )}
       </div>
+
+      <div className="relative z-10 mx-auto mt-4 max-w-md px-5">
+        <UserSearchBar placeholder="Rechercher d'autres utilisateurs…" />
+      </div>
+
 
       <div className="relative z-10 mx-auto max-w-md px-5 pt-6">
         {/* Profil */}
