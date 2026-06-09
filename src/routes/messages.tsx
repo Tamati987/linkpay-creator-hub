@@ -174,7 +174,7 @@ function MessagesPage() {
                 <MessageCircle className="mx-auto mb-2 h-6 w-6 opacity-60" />
                 Aucune conversation pour le moment.
                 <br />
-                Suivez des utilisateurs pour leur écrire.
+                Recherchez un utilisateur pour lui écrire.
               </div>
             ) : (
               <ul className="divide-y divide-border">
