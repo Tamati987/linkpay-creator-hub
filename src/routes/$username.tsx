@@ -238,6 +238,11 @@ function PublicProfile() {
         )}
       </div>
 
+      <div className="relative z-10 mx-auto mt-4 max-w-md px-5">
+        <UserSearchBar placeholder="Rechercher d'autres utilisateurs…" />
+      </div>
+
+
       <div className="relative z-10 mx-auto max-w-md px-5 pt-6">
         {/* Profil */}
         <div className="flex flex-col items-center text-center">
