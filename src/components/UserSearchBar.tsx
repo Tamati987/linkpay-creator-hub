@@ -19,7 +19,7 @@ export function UserSearchBar({
   className?: string;
   placeholder?: string;
 }) {
-  const [q, setQ] = useState("");
+  const { user } = useAuth();
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
