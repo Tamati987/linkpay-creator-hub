@@ -187,6 +187,12 @@ function DashboardPage() {
             >
               <Share2 className="h-3.5 w-3.5" /> Partager
             </button>
+            <Link
+              to="/messages"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-xs font-medium transition hover:bg-surface-elevated"
+            >
+              <Mail className="h-3.5 w-3.5" /> Messages
+            </Link>
             <button
               onClick={async () => { await signOut(); navigate({ to: "/" }); }}
               aria-label="Se déconnecter"
