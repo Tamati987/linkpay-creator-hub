@@ -9,6 +9,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { WebsiteCard } from "@/components/WebsiteCard";
 import { FollowSection } from "@/components/FollowSection";
+import { UserSearchBar } from "@/components/UserSearchBar";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
 import { getTheme } from "@/lib/themes";
