@@ -106,7 +106,7 @@ export function UserSearchBar({
                       e.stopPropagation();
                       setQ("");
                       setOpen(false);
-                      router.navigate({ to: "/$username", params: { username: r.username } });
+                      window.location.assign(`/${r.username}`);
                     }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2"
                   >
