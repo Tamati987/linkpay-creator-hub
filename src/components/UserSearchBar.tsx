@@ -20,6 +20,7 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
