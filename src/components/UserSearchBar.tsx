@@ -101,8 +101,9 @@ export function UserSearchBar({
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
                   <a
                     href={`/${r.username}`}
-                    onClick={(e) => {
+                    onMouseDown={(e) => {
                       e.preventDefault();
+                      e.stopPropagation();
                       setQ("");
                       setOpen(false);
                       router.navigate({ to: "/$username", params: { username: r.username } });
