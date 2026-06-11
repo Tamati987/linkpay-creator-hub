@@ -100,6 +100,7 @@ export function UserSearchBar({
               {results.map((r) => (
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
                   <Link
+                    from="/"
                     to="/$username"
                     params={{ username: r.username }}
                     onClick={() => {
