@@ -104,7 +104,16 @@ export function UserSearchBar({
           ) : (
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
-                <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
+                <li
+                  key={r.id}
+                  onMouseDown={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest('[data-message-link="true"]')) return;
+                    e.preventDefault();
+                    openProfile(r.username);
+                  }}
+                  className="flex cursor-pointer items-center gap-1 pr-2 transition hover:bg-accent"
+                >
                   <button
                     type="button"
                     onPointerDown={(e) => {
@@ -151,6 +160,7 @@ export function UserSearchBar({
                     <Link
                       to="/messages"
                       search={{ to: r.id }}
+                      data-message-link="true"
                       onClick={() => setOpen(false)}
                       aria-label={`Écrire à ${r.username}`}
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-primary hover:text-primary-foreground"
