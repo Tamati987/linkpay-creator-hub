@@ -27,6 +27,12 @@ export function UserSearchBar({
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
+  const openProfile = (username: string) => {
+    setQ("");
+    setOpen(false);
+    window.location.href = `/${encodeURIComponent(username)}`;
+  };
+
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
@@ -98,15 +104,34 @@ export function UserSearchBar({
           ) : (
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
-                <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
-                  <Link
-                    to="/$username"
-                    params={{ username: r.username }}
-                    onClick={() => {
-                      setQ("");
-                      setOpen(false);
+                <li
+                  key={r.id}
+                  onMouseDown={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest('[data-message-link="true"]')) return;
+                    e.preventDefault();
+                    openProfile(r.username);
+                  }}
+                  className="flex cursor-pointer items-center gap-1 pr-2 transition hover:bg-accent"
+                >
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openProfile(r.username);
                     }}
-                    className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openProfile(r.username);
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openProfile(r.username);
+                    }}
+                    className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
                     {r.avatar_url ? (
                       <img
@@ -130,11 +155,12 @@ export function UserSearchBar({
                         @{r.username}
                       </div>
                     </div>
-                  </Link>
+                  </button>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
                       search={{ to: r.id }}
+                      data-message-link="true"
                       onClick={() => setOpen(false)}
                       aria-label={`Écrire à ${r.username}`}
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-primary hover:text-primary-foreground"
