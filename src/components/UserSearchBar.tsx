@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, Loader2, X, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -20,12 +20,19 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  const openProfile = (username: string) => {
+    setQ("");
+    setOpen(false);
+    void navigate({ to: "/$username", params: { username } });
+  };
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -103,6 +110,12 @@ export function UserSearchBar({
                     from="/"
                     to="/$username"
                     params={{ username: r.username }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openProfile(r.username);
+                    }}
+                    onClick={() => openProfile(r.username)}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2"
                   >
                     {r.avatar_url ? (
