@@ -134,8 +134,13 @@ export const Route = createFileRoute("/$username")({
       })),
     };
   },
-  component: PublicProfile,
+  component: PublicProfileRoute,
 });
+
+function PublicProfileRoute() {
+  const { username } = Route.useParams();
+  return <PublicProfile key={username} />;
+}
 
 function PublicProfile() {
   const { username } = Route.useParams();
