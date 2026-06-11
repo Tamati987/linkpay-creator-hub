@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Search, Loader2, X, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -20,7 +20,6 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
@@ -31,7 +30,7 @@ export function UserSearchBar({
   const openProfile = (username: string) => {
     setQ("");
     setOpen(false);
-    void navigate({ to: "/$username", params: { username } });
+    window.location.assign(`/${encodeURIComponent(username)}`);
   };
 
   useEffect(() => {
@@ -106,16 +105,17 @@ export function UserSearchBar({
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
-                  <Link
-                    from="/"
-                    to="/$username"
-                    params={{ username: r.username }}
+                  <a
+                    href={`/${encodeURIComponent(r.username)}`}
                     onPointerDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       openProfile(r.username);
                     }}
-                    onClick={() => openProfile(r.username)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openProfile(r.username);
+                    }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2"
                   >
                     {r.avatar_url ? (
@@ -140,7 +140,7 @@ export function UserSearchBar({
                         @{r.username}
                       </div>
                     </div>
-                  </Link>
+                  </a>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
