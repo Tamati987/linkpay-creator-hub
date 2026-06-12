@@ -27,10 +27,9 @@ export function UserSearchBar({
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const openProfile = (username: string) => {
+  const closeResults = () => {
     setQ("");
     setOpen(false);
-    window.location.href = `/${encodeURIComponent(username)}`;
   };
 
   useEffect(() => {
@@ -106,31 +105,12 @@ export function UserSearchBar({
               {results.map((r) => (
                 <li
                   key={r.id}
-                  onMouseDown={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.closest('[data-message-link="true"]')) return;
-                    e.preventDefault();
-                    openProfile(r.username);
-                  }}
-                  className="flex cursor-pointer items-center gap-1 pr-2 transition hover:bg-accent"
+                  className="flex items-center gap-1 pr-2 transition hover:bg-accent"
                 >
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
+                  <Link
+                    to="/$username"
+                    params={{ username: r.username }}
+                    onClick={closeResults}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
                     {r.avatar_url ? (
@@ -155,7 +135,7 @@ export function UserSearchBar({
                         @{r.username}
                       </div>
                     </div>
-                  </button>
+                  </Link>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
