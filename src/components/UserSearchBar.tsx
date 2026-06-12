@@ -20,17 +20,16 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
-  
+
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const openProfile = (username: string) => {
+  const closeResults = () => {
     setQ("");
     setOpen(false);
-    window.location.href = `/${encodeURIComponent(username)}`;
   };
 
   useEffect(() => {
@@ -104,33 +103,11 @@ export function UserSearchBar({
           ) : (
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
-                <li
-                  key={r.id}
-                  onMouseDown={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.closest('[data-message-link="true"]')) return;
-                    e.preventDefault();
-                    openProfile(r.username);
-                  }}
-                  className="flex cursor-pointer items-center gap-1 pr-2 transition hover:bg-accent"
-                >
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openProfile(r.username);
-                    }}
+                <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
+                  <Link
+                    to="/$username"
+                    params={{ username: r.username }}
+                    onClick={closeResults}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
                     {r.avatar_url ? (
@@ -147,15 +124,11 @@ export function UserSearchBar({
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {r.display_name || r.username}
-                        {r.is_pro && (
-                          <span className="ml-1 text-xs text-primary">✓</span>
-                        )}
+                        {r.is_pro && <span className="ml-1 text-xs text-primary">✓</span>}
                       </div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        @{r.username}
-                      </div>
+                      <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
-                  </button>
+                  </Link>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
