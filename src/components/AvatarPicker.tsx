@@ -24,15 +24,16 @@ export function AvatarPicker({ open, onClose, userId, currentUrl, ownedAvatarIds
 
   const apply = async (a: AvatarPreset) => {
     setBusy(a.id);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ avatar_url: a.url })
-      .eq("id", userId);
-    setBusy(null);
-    if (error) return toast.error(error.message);
-    toast.success("Avatar mis à jour");
-    onSaved();
-    onClose();
+    try {
+      await setAvatarFn({ data: { avatarId: a.id } });
+      toast.success("Avatar mis à jour");
+      onSaved();
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setBusy(null);
+    }
   };
 
   const buy = async (a: AvatarPreset) => {
