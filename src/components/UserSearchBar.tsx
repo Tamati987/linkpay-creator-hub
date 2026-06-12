@@ -20,7 +20,7 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
-  
+
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [open, setOpen] = useState(false);
@@ -103,10 +103,7 @@ export function UserSearchBar({
           ) : (
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex items-center gap-1 pr-2 transition hover:bg-accent"
-                >
+                <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
                   <Link
                     to="/$username"
                     params={{ username: r.username }}
@@ -127,13 +124,9 @@ export function UserSearchBar({
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {r.display_name || r.username}
-                        {r.is_pro && (
-                          <span className="ml-1 text-xs text-primary">✓</span>
-                        )}
+                        {r.is_pro && <span className="ml-1 text-xs text-primary">✓</span>}
                       </div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        @{r.username}
-                      </div>
+                      <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
                   </Link>
                   {user && user.id !== r.id && (
