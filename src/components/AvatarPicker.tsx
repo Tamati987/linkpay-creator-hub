@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Crown, Lock, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { FREE_AVATARS, PREMIUM_AVATARS, AVATAR_PRICE_CENTS, type AvatarPreset } from "@/lib/avatars";
+import { setAvatar } from "@/lib/profile.functions";
 import { createAvatarCheckout } from "@/lib/stripe.functions";
 
 type Props = {
