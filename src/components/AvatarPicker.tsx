@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Crown, Lock, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { FREE_AVATARS, PREMIUM_AVATARS, AVATAR_PRICE_CENTS, type AvatarPreset } from "@/lib/avatars";
+import { setAvatar } from "@/lib/profile.functions";
 import { createAvatarCheckout } from "@/lib/stripe.functions";
 
 type Props = {
@@ -18,20 +18,22 @@ type Props = {
 export function AvatarPicker({ open, onClose, userId, currentUrl, ownedAvatarIds, onSaved }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const checkoutFn = useServerFn(createAvatarCheckout);
+  const setAvatarFn = useServerFn(setAvatar);
 
   if (!open) return null;
 
   const apply = async (a: AvatarPreset) => {
     setBusy(a.id);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ avatar_url: a.url })
-      .eq("id", userId);
-    setBusy(null);
-    if (error) return toast.error(error.message);
-    toast.success("Avatar mis à jour");
-    onSaved();
-    onClose();
+    try {
+      await setAvatarFn({ data: { avatarId: a.id } });
+      toast.success("Avatar mis à jour");
+      onSaved();
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setBusy(null);
+    }
   };
 
   const buy = async (a: AvatarPreset) => {
