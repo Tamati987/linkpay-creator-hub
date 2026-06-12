@@ -9,6 +9,8 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { NewsletterBlock } from "@/components/NewsletterBlock";
 import { WebsiteCard } from "@/components/WebsiteCard";
 import { FollowSection } from "@/components/FollowSection";
+import { FriendButton } from "@/components/FriendButton";
+import { FriendsPanel } from "@/components/FriendsPanel";
 import { UserSearchBar } from "@/components/UserSearchBar";
 import { detectVideo } from "@/lib/video";
 import { detectSocialBrand } from "@/lib/social";
@@ -280,6 +282,12 @@ function PublicProfile() {
 
           <FollowSection profileId={profile.id} isOwner={isOwner} theme={theme} />
 
+          {!isOwner && currentUserId && (
+            <div className="mt-3">
+              <FriendButton profileId={profile.id} theme={theme} />
+            </div>
+          )}
+
           {/* Icônes sociales en ligne, sans cercle */}
           {socials.length > 0 && (
             <div className="mt-5 flex flex-wrap items-center justify-center gap-5">
@@ -303,6 +311,8 @@ function PublicProfile() {
             </div>
           )}
         </div>
+
+        {isOwner && <FriendsPanel theme={theme} />}
 
         {/* Contenu */}
         <div className="mt-8 space-y-6">
