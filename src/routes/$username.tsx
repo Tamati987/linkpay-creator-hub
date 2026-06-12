@@ -312,6 +312,8 @@ function PublicProfile() {
           )}
         </div>
 
+        {isOwner && <FriendsPanel theme={theme} />}
+
         {/* Contenu */}
         <div className="mt-8 space-y-6">
           {/* Sites — aperçu plein avec screenshot */}
