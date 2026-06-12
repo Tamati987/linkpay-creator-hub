@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_premium_avatar_ownership() FROM PUBLIC, anon, authenticated;
