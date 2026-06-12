@@ -18,6 +18,7 @@ type Props = {
 export function AvatarPicker({ open, onClose, userId, currentUrl, ownedAvatarIds, onSaved }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const checkoutFn = useServerFn(createAvatarCheckout);
+  const setAvatarFn = useServerFn(setAvatar);
 
   if (!open) return null;
 
