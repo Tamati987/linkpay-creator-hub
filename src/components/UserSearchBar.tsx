@@ -20,6 +20,8 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Result[]>([]);
@@ -27,10 +29,11 @@ export function UserSearchBar({
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const closeResults = () => {
-    setQ("");
+  // Close dropdown whenever the route changes (e.g. after navigating to a result).
+  useEffect(() => {
     setOpen(false);
-  };
+    setQ("");
+  }, [pathname]);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
