@@ -120,17 +120,6 @@ function RootComponent() {
 function AppChrome() {
   const { user } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // Hide nav on auth pages and on the public landing / public profile pages
-  const hideNav =
-    !user ||
-    pathname === "/" ||
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/signup") ||
-    pathname.startsWith("/checkout") ||
-    pathname.startsWith("/pricing") ||
-    /^\/[^/]+$/.test(pathname) === false
-      ? false
-      : false;
   const showChrome =
     !!user &&
     !pathname.startsWith("/login") &&
