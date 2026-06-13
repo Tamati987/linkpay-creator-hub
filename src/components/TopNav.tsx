@@ -9,9 +9,20 @@ import { getUnreadCount } from "@/lib/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export function TopNav({ onOpenMessenger }: { onOpenMessenger: () => void }) {
-  const { user, profile } = useAuth() as any;
+  const { user } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const fetchUnread = useServerFn(getUnreadCount);
+  const [profile, setProfile] = useState<{ username: string; display_name: string; avatar_url: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("username, display_name, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data as any));
+  }, [user?.id]);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
