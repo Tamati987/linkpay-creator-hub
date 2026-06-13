@@ -9,8 +9,11 @@ import {
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { NotificationPanel } from "@/components/NotificationPanel";
+import { TopNav } from "@/components/TopNav";
+import { MessengerDock, openMessengerDock } from "@/components/MessengerDock";
+import { useRouterState } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
@@ -106,10 +109,28 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <AppChrome />
         <NotificationPanel />
         <Toaster theme="dark" position="bottom-left" />
       </AuthProvider>
     </QueryClientProvider>
   );
 }
+
+function AppChrome() {
+  const { user } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showChrome =
+    !!user &&
+    !pathname.startsWith("/login") &&
+    !pathname.startsWith("/signup") &&
+    pathname !== "/";
+  return (
+    <>
+      {showChrome && <TopNav onOpenMessenger={openMessengerDock} />}
+      <Outlet />
+      {showChrome && <MessengerDock />}
+    </>
+  );
+}
+
