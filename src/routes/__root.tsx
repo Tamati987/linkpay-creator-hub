@@ -9,8 +9,11 @@ import {
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { NotificationPanel } from "@/components/NotificationPanel";
+import { TopNav } from "@/components/TopNav";
+import { MessengerDock, openMessengerDock } from "@/components/MessengerDock";
+import { useRouterState } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
