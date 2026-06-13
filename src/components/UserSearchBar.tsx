@@ -107,10 +107,16 @@ export function UserSearchBar({
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
-                  <Link
-                    to="/$username"
-                    params={{ username: r.username }}
-                    onClick={closeResults}
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      // Use mousedown so the navigation fires before the input's
+                      // blur/close logic re-renders and drops the click target.
+                      e.preventDefault();
+                      navigate({ to: "/$username", params: { username: r.username } });
+                      setOpen(false);
+                      setQ("");
+                    }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
                     {r.avatar_url ? (
@@ -131,13 +137,16 @@ export function UserSearchBar({
                       </div>
                       <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
-                  </Link>
+                  </button>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
                       search={{ to: r.id }}
                       data-message-link="true"
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        setOpen(false);
+                        setQ("");
+                      }}
                       aria-label={`Écrire à ${r.username}`}
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-primary hover:text-primary-foreground"
                     >
