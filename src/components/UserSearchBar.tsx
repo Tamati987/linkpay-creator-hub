@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Search, Loader2, X, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -20,7 +20,6 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const [q, setQ] = useState("");
@@ -107,13 +106,11 @@ export function UserSearchBar({
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
-                  <button
-                    type="button"
-                    onMouseDown={(e) => {
-                      // Use mousedown so the navigation fires before the input's
-                      // blur/close logic re-renders and drops the click target.
-                      e.preventDefault();
-                      navigate({ to: "/$username", params: { username: r.username } });
+                  <Link
+                    to="/$username"
+                    params={{ username: r.username }}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
                       setOpen(false);
                       setQ("");
                     }}
@@ -137,7 +134,7 @@ export function UserSearchBar({
                       </div>
                       <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
-                  </button>
+                  </Link>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
