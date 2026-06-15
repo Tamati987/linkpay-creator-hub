@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Search, Loader2, X, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -20,6 +20,7 @@ export function UserSearchBar({
   placeholder?: string;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const [q, setQ] = useState("");
@@ -109,10 +110,13 @@ export function UserSearchBar({
                   <Link
                     to="/$username"
                     params={{ username: r.username }}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      setOpen(false);
-                      setQ("");
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setTimeout(() => {
+                        navigate({ to: "/$username", params: { username: r.username } });
+                        setOpen(false);
+                        setQ("");
+                      }, 100);
                     }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
