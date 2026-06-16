@@ -397,7 +397,7 @@ function ChatWindow({
                           : "bg-muted text-foreground"
                       }`}
                     >
-                      <div className="whitespace-pre-wrap break-words">{m.body}</div>
+                      <div className="whitespace-pre-wrap break-words">{renderMessageBody(m.body)}</div>
                     </div>
                   </div>
                 );
