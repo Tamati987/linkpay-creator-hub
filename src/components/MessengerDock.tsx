@@ -299,6 +299,27 @@ function ChatWindow({
     }
   };
 
+  const onStartVideoCall = async () => {
+    if (startingCall) return;
+    setStartingCall(true);
+    // Open tab synchronously so popup blockers don't intercept
+    const win = window.open("about:blank", "_blank");
+    try {
+      const { url } = await createRoom();
+      if (win) win.location.href = url;
+      else window.open(url, "_blank");
+      const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
+      const r = await send({ data: { recipientId: otherId, body: msgBody } });
+      setMessages((arr) => [...arr, r.message as Msg]);
+      toast.success("Appel vidéo créé");
+    } catch (err: any) {
+      if (win) win.close();
+      toast.error(err?.message ?? "Impossible de créer l'appel vidéo");
+    } finally {
+      setStartingCall(false);
+    }
+  };
+
   return (
     <div
       className={`pointer-events-auto ${offsetClass} flex w-[320px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-card shadow-2xl`}
