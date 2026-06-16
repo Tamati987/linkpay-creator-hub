@@ -28,7 +28,6 @@ export function UserSearchBar({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Close dropdown whenever the route changes (e.g. after navigating to a result).
   useEffect(() => {
@@ -43,18 +42,8 @@ export function UserSearchBar({
     document.addEventListener("mousedown", onDoc);
     return () => {
       document.removeEventListener("mousedown", onDoc);
-      if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
     };
   }, []);
-
-  const openProfile = (username: string) => {
-    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    navigationTimerRef.current = setTimeout(() => {
-      navigate({ to: "/$username", params: { username } });
-      setOpen(false);
-      setQ("");
-    }, 100);
-  };
 
   useEffect(() => {
     const term = q.trim();
