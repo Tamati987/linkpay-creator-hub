@@ -10,6 +10,7 @@ import {
   listMessages,
   sendMessage,
 } from "@/lib/messages.functions";
+import { createVideoRoom } from "@/lib/video-call.functions";
 
 type Msg = {
   id: string;
@@ -69,6 +70,27 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
       {(p.display_name || p.username).slice(0, 2).toUpperCase()}
     </div>
   );
+}
+
+function renderMessageBody(body: string) {
+  const parts = body.split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) => {
+    if (/^https?:\/\//.test(part)) {
+      const isCall = part.includes("daily.co");
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`underline ${isCall ? "font-semibold" : ""}`}
+        >
+          {isCall ? "Rejoindre l'appel vidéo" : part}
+        </a>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
 }
 
 export function MessengerDock() {
@@ -238,11 +260,13 @@ function ChatWindow({
   const { user } = useAuth();
   const fetchMessages = useServerFn(listMessages);
   const send = useServerFn(sendMessage);
+  const createRoom = useServerFn(createVideoRoom);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [other, setOther] = useState<Profile | null>(null);
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [startingCall, setStartingCall] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -296,6 +320,27 @@ function ChatWindow({
     }
   };
 
+  const onStartVideoCall = async () => {
+    if (startingCall) return;
+    setStartingCall(true);
+    // Open tab synchronously so popup blockers don't intercept
+    const win = window.open("about:blank", "_blank");
+    try {
+      const { url } = await createRoom();
+      if (win) win.location.href = url;
+      else window.open(url, "_blank");
+      const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
+      const r = await send({ data: { recipientId: otherId, body: msgBody } });
+      setMessages((arr) => [...arr, r.message as Msg]);
+      toast.success("Appel vidéo créé");
+    } catch (err: any) {
+      if (win) win.close();
+      toast.error(err?.message ?? "Impossible de créer l'appel vidéo");
+    } finally {
+      setStartingCall(false);
+    }
+  };
+
   return (
     <div
       className={`pointer-events-auto ${offsetClass} flex w-[320px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-card shadow-2xl`}
@@ -326,10 +371,11 @@ function ChatWindow({
         <button
           type="button"
           aria-label="Appel vidéo"
-          onClick={() => toast.info("Appel vidéo bientôt disponible")}
-          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent"
+          onClick={onStartVideoCall}
+          disabled={startingCall}
+          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent disabled:opacity-50"
         >
-          <Video className="h-4 w-4" />
+          {startingCall ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
         </button>
         <button
           type="button"
@@ -372,7 +418,7 @@ function ChatWindow({
                           : "bg-muted text-foreground"
                       }`}
                     >
-                      <div className="whitespace-pre-wrap break-words">{m.body}</div>
+                      <div className="whitespace-pre-wrap break-words">{renderMessageBody(m.body)}</div>
                     </div>
                   </div>
                 );
