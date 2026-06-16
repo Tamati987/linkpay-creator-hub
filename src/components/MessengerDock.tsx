@@ -239,11 +239,13 @@ function ChatWindow({
   const { user } = useAuth();
   const fetchMessages = useServerFn(listMessages);
   const send = useServerFn(sendMessage);
+  const createRoom = useServerFn(createVideoRoom);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [other, setOther] = useState<Profile | null>(null);
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [startingCall, setStartingCall] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
