@@ -91,6 +91,7 @@ function renderMessageBody(body: string) {
     }
     return <span key={i}>{part}</span>;
   });
+}
 
 export function MessengerDock() {
   const { user } = useAuth();
