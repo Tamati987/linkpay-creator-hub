@@ -72,6 +72,26 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
   );
 }
 
+function renderMessageBody(body: string) {
+  const parts = body.split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) => {
+    if (/^https?:\/\//.test(part)) {
+      const isCall = part.includes("daily.co");
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`underline ${isCall ? "font-semibold" : ""}`}
+        >
+          {isCall ? "Rejoindre l'appel vidéo" : part}
+        </a>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+
 export function MessengerDock() {
   const { user } = useAuth();
   const fetchConvos = useServerFn(listConversations);
