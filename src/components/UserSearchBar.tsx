@@ -125,11 +125,13 @@ export function UserSearchBar({
                     params={{ username: r.username }}
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      openProfile(r.username);
+                      setTimeout(() => {
+                        navigate({ to: "/$username", params: { username: r.username } });
+                      }, 100);
                     }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openProfile(r.username);
+                    onClick={() => {
+                      setOpen(false);
+                      setQ("");
                     }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
