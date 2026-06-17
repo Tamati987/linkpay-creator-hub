@@ -3,7 +3,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const createVideoRoom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .inputValidator((data: { mode?: "audio" | "video" }) => data)
+  .handler(async ({ data }) => {
+    const mode = data.mode ?? "video";
     const apiKey = process.env.DAILY_API_KEY;
     if (!apiKey) throw new Error("DAILY_API_KEY non configurée");
 
@@ -20,7 +22,7 @@ export const createVideoRoom = createServerFn({ method: "POST" })
           exp,
           enable_screenshare: true,
           enable_chat: true,
-          start_video_off: false,
+          start_video_off: mode === "audio",
           start_audio_off: false,
         },
       }),
