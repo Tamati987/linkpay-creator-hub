@@ -72,6 +72,16 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
   );
 }
 
+function buildInAppCallUrl(dailyUrl: string, mode: "audio" | "video") {
+  try {
+    const u = new URL(dailyUrl);
+    const name = u.pathname.replace(/^\//, "");
+    return `/call/${encodeURIComponent(name)}?mode=${mode}&url=${encodeURIComponent(dailyUrl)}`;
+  } catch {
+    return dailyUrl;
+  }
+}
+
 function renderMessageBody(body: string) {
   const parts = body.split(/(https?:\/\/[^\s]+)/g);
   const isAudioCall = body.includes("📞 Appel vocal");
@@ -82,11 +92,12 @@ function renderMessageBody(body: string) {
       let label = isCall ? "Rejoindre l'appel" : part;
       if (isCall && isAudioCall) label = "Rejoindre l'appel vocal";
       if (isCall && isVideoCall) label = "Rejoindre l'appel vidéo";
+      const href = isCall ? buildInAppCallUrl(part, isAudioCall ? "audio" : "video") : part;
       return (
         <a
           key={i}
-          href={part}
-          target="_blank"
+          href={href}
+          target={isCall ? "_self" : "_blank"}
           rel="noopener noreferrer"
           className={`underline ${isCall ? "font-semibold" : ""}`}
         >
