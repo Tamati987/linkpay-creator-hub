@@ -327,7 +327,7 @@ function ChatWindow({
     // Open tab synchronously so popup blockers don't intercept
     const win = window.open("about:blank", "_blank");
     try {
-      const { url } = await createRoom();
+      const { url } = await createRoom({ data: { mode: "video" } });
       if (win) win.location.href = url;
       else window.open(url, "_blank");
       const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
@@ -339,6 +339,26 @@ function ChatWindow({
       toast.error(err?.message ?? "Impossible de créer l'appel vidéo");
     } finally {
       setStartingCall(false);
+    }
+  };
+
+  const onStartAudioCall = async () => {
+    if (startingAudioCall) return;
+    setStartingAudioCall(true);
+    const win = window.open("about:blank", "_blank");
+    try {
+      const { url } = await createRoom({ data: { mode: "audio" } });
+      if (win) win.location.href = url;
+      else window.open(url, "_blank");
+      const msgBody = `📞 Appel vocal : rejoignez ici → ${url}`;
+      const r = await send({ data: { recipientId: otherId, body: msgBody } });
+      setMessages((arr) => [...arr, r.message as Msg]);
+      toast.success("Appel vocal créé");
+    } catch (err: any) {
+      if (win) win.close();
+      toast.error(err?.message ?? "Impossible de créer l'appel vocal");
+    } finally {
+      setStartingAudioCall(false);
     }
   };
 
