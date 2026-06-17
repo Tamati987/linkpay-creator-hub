@@ -74,9 +74,14 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
 
 function renderMessageBody(body: string) {
   const parts = body.split(/(https?:\/\/[^\s]+)/g);
+  const isAudioCall = body.includes("📞 Appel vocal");
+  const isVideoCall = body.includes("📹 Appel vidéo");
   return parts.map((part, i) => {
     if (/^https?:\/\//.test(part)) {
       const isCall = part.includes("daily.co");
+      let label = isCall ? "Rejoindre l'appel" : part;
+      if (isCall && isAudioCall) label = "Rejoindre l'appel vocal";
+      if (isCall && isVideoCall) label = "Rejoindre l'appel vidéo";
       return (
         <a
           key={i}
@@ -85,7 +90,7 @@ function renderMessageBody(body: string) {
           rel="noopener noreferrer"
           className={`underline ${isCall ? "font-semibold" : ""}`}
         >
-          {isCall ? "Rejoindre l'appel vidéo" : part}
+          {label}
         </a>
       );
     }
@@ -267,6 +272,7 @@ function ChatWindow({
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [startingCall, setStartingCall] = useState(false);
+  const [startingAudioCall, setStartingAudioCall] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -326,7 +332,7 @@ function ChatWindow({
     // Open tab synchronously so popup blockers don't intercept
     const win = window.open("about:blank", "_blank");
     try {
-      const { url } = await createRoom();
+      const { url } = await createRoom({ data: { mode: "video" } });
       if (win) win.location.href = url;
       else window.open(url, "_blank");
       const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
@@ -338,6 +344,26 @@ function ChatWindow({
       toast.error(err?.message ?? "Impossible de créer l'appel vidéo");
     } finally {
       setStartingCall(false);
+    }
+  };
+
+  const onStartAudioCall = async () => {
+    if (startingAudioCall) return;
+    setStartingAudioCall(true);
+    const win = window.open("about:blank", "_blank");
+    try {
+      const { url } = await createRoom({ data: { mode: "audio" } });
+      if (win) win.location.href = url;
+      else window.open(url, "_blank");
+      const msgBody = `📞 Appel vocal : rejoignez ici → ${url}`;
+      const r = await send({ data: { recipientId: otherId, body: msgBody } });
+      setMessages((arr) => [...arr, r.message as Msg]);
+      toast.success("Appel vocal créé");
+    } catch (err: any) {
+      if (win) win.close();
+      toast.error(err?.message ?? "Impossible de créer l'appel vocal");
+    } finally {
+      setStartingAudioCall(false);
     }
   };
 
@@ -363,10 +389,11 @@ function ChatWindow({
         <button
           type="button"
           aria-label="Appel"
-          onClick={() => toast.info("Appel vocal bientôt disponible")}
-          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent"
+          onClick={onStartAudioCall}
+          disabled={startingAudioCall}
+          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent disabled:opacity-50"
         >
-          <Phone className="h-4 w-4" />
+          {startingAudioCall ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
         </button>
         <button
           type="button"
