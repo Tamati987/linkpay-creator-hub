@@ -384,10 +384,11 @@ function ChatWindow({
         <button
           type="button"
           aria-label="Appel"
-          onClick={() => toast.info("Appel vocal bientôt disponible")}
-          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent"
+          onClick={onStartAudioCall}
+          disabled={startingAudioCall}
+          className="grid h-7 w-7 place-items-center rounded-full text-primary hover:bg-accent disabled:opacity-50"
         >
-          <Phone className="h-4 w-4" />
+          {startingAudioCall ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
         </button>
         <button
           type="button"
