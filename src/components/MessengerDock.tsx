@@ -72,6 +72,16 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
   );
 }
 
+function buildInAppCallUrl(dailyUrl: string, mode: "audio" | "video") {
+  try {
+    const u = new URL(dailyUrl);
+    const name = u.pathname.replace(/^\//, "");
+    return `/call/${encodeURIComponent(name)}?mode=${mode}&url=${encodeURIComponent(dailyUrl)}`;
+  } catch {
+    return dailyUrl;
+  }
+}
+
 function renderMessageBody(body: string) {
   const parts = body.split(/(https?:\/\/[^\s]+)/g);
   const isAudioCall = body.includes("📞 Appel vocal");
@@ -82,11 +92,12 @@ function renderMessageBody(body: string) {
       let label = isCall ? "Rejoindre l'appel" : part;
       if (isCall && isAudioCall) label = "Rejoindre l'appel vocal";
       if (isCall && isVideoCall) label = "Rejoindre l'appel vidéo";
+      const href = isCall ? buildInAppCallUrl(part, isAudioCall ? "audio" : "video") : part;
       return (
         <a
           key={i}
-          href={part}
-          target="_blank"
+          href={href}
+          target={isCall ? "_self" : "_blank"}
           rel="noopener noreferrer"
           className={`underline ${isCall ? "font-semibold" : ""}`}
         >
@@ -329,12 +340,13 @@ function ChatWindow({
   const onStartVideoCall = async () => {
     if (startingCall) return;
     setStartingCall(true);
-    // Open tab synchronously so popup blockers don't intercept
     const win = window.open("about:blank", "_blank");
     try {
       const { url } = await createRoom({ data: { mode: "video" } });
-      if (win) win.location.href = url;
-      else window.open(url, "_blank");
+      const inApp = buildInAppCallUrl(url, "video");
+      const target = window.location.origin + inApp;
+      if (win) win.location.href = target;
+      else window.open(target, "_blank");
       const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
       const r = await send({ data: { recipientId: otherId, body: msgBody } });
       setMessages((arr) => [...arr, r.message as Msg]);
@@ -353,8 +365,10 @@ function ChatWindow({
     const win = window.open("about:blank", "_blank");
     try {
       const { url } = await createRoom({ data: { mode: "audio" } });
-      if (win) win.location.href = url;
-      else window.open(url, "_blank");
+      const inApp = buildInAppCallUrl(url, "audio");
+      const target = window.location.origin + inApp;
+      if (win) win.location.href = target;
+      else window.open(target, "_blank");
       const msgBody = `📞 Appel vocal : rejoignez ici → ${url}`;
       const r = await send({ data: { recipientId: otherId, body: msgBody } });
       setMessages((arr) => [...arr, r.message as Msg]);
