@@ -340,12 +340,13 @@ function ChatWindow({
   const onStartVideoCall = async () => {
     if (startingCall) return;
     setStartingCall(true);
-    // Open tab synchronously so popup blockers don't intercept
     const win = window.open("about:blank", "_blank");
     try {
       const { url } = await createRoom({ data: { mode: "video" } });
-      if (win) win.location.href = url;
-      else window.open(url, "_blank");
+      const inApp = buildInAppCallUrl(url, "video");
+      const target = window.location.origin + inApp;
+      if (win) win.location.href = target;
+      else window.open(target, "_blank");
       const msgBody = `📹 Appel vidéo : rejoignez ici → ${url}`;
       const r = await send({ data: { recipientId: otherId, body: msgBody } });
       setMessages((arr) => [...arr, r.message as Msg]);
@@ -364,8 +365,10 @@ function ChatWindow({
     const win = window.open("about:blank", "_blank");
     try {
       const { url } = await createRoom({ data: { mode: "audio" } });
-      if (win) win.location.href = url;
-      else window.open(url, "_blank");
+      const inApp = buildInAppCallUrl(url, "audio");
+      const target = window.location.origin + inApp;
+      if (win) win.location.href = target;
+      else window.open(target, "_blank");
       const msgBody = `📞 Appel vocal : rejoignez ici → ${url}`;
       const r = await send({ data: { recipientId: otherId, body: msgBody } });
       setMessages((arr) => [...arr, r.message as Msg]);
