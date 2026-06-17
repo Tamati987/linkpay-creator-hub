@@ -74,9 +74,14 @@ function Avatar({ p, size = 36 }: { p: Profile | null; size?: number }) {
 
 function renderMessageBody(body: string) {
   const parts = body.split(/(https?:\/\/[^\s]+)/g);
+  const isAudioCall = body.includes("📞 Appel vocal");
+  const isVideoCall = body.includes("📹 Appel vidéo");
   return parts.map((part, i) => {
     if (/^https?:\/\//.test(part)) {
       const isCall = part.includes("daily.co");
+      let label = isCall ? "Rejoindre l'appel" : part;
+      if (isCall && isAudioCall) label = "Rejoindre l'appel vocal";
+      if (isCall && isVideoCall) label = "Rejoindre l'appel vidéo";
       return (
         <a
           key={i}
@@ -85,7 +90,7 @@ function renderMessageBody(body: string) {
           rel="noopener noreferrer"
           className={`underline ${isCall ? "font-semibold" : ""}`}
         >
-          {isCall ? "Rejoindre l'appel vidéo" : part}
+          {label}
         </a>
       );
     }
