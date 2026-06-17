@@ -267,6 +267,7 @@ function ChatWindow({
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [startingCall, setStartingCall] = useState(false);
+  const [startingAudioCall, setStartingAudioCall] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
