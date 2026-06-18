@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, Loader2, MessageCircle, Minus, Phone, Send, Video, X } from "lucide-react";
+import { ChevronDown, Loader2, MessageCircle, Minus, Phone, PhoneOff, Send, Video, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import {
   sendMessage,
 } from "@/lib/messages.functions";
 import { createVideoRoom } from "@/lib/video-call.functions";
+import { playNotificationSound, startRingtone } from "@/lib/sounds";
 
 type Msg = {
   id: string;
