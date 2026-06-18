@@ -109,18 +109,12 @@ export function UserSearchBar({
             <ul className="max-h-80 overflow-y-auto py-1">
               {results.map((r) => (
                 <li key={r.id} className="flex items-center gap-1 pr-2 transition hover:bg-accent">
-                  <Link
-                    to="/$username"
-                    params={{ username: r.username }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      setTimeout(() => {
-                        navigate({ to: "/$username", params: { username: r.username } });
-                      }, 100);
-                    }}
+                  <button
+                    type="button"
                     onClick={() => {
                       setOpen(false);
                       setQ("");
+                      navigate({ to: "/$username", params: { username: r.username } });
                     }}
                     className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left"
                   >
@@ -140,9 +134,9 @@ export function UserSearchBar({
                         {r.display_name || r.username}
                         {r.is_pro && <span className="ml-1 text-xs text-primary">✓</span>}
                       </div>
-                      <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
+                    <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
-                  </Link>
+                  </button>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
