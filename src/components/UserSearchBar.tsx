@@ -134,9 +134,9 @@ export function UserSearchBar({
                         {r.display_name || r.username}
                         {r.is_pro && <span className="ml-1 text-xs text-primary">✓</span>}
                       </div>
-                      <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
+                    <div className="truncate text-xs text-muted-foreground">@{r.username}</div>
                     </div>
-                  </Link>
+                  </button>
                   {user && user.id !== r.id && (
                     <Link
                       to="/messages"
