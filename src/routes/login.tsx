@@ -98,12 +98,19 @@ function LoginPage() {
           </button>
         </form>
 
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          <Link to="/forgot-password" className="text-foreground underline-offset-4 hover:underline">
+            Mot de passe oublié ?
+          </Link>
+        </p>
+
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Pas encore de compte ?{" "}
           <Link to="/signup" className="text-foreground underline-offset-4 hover:underline">
             Créer un compte
           </Link>
         </p>
+
       </div>
     </div>
   );
