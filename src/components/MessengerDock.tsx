@@ -205,7 +205,45 @@ export function MessengerDock() {
 
   return (
     <>
+      {/* Incoming call modal */}
+      {incoming && (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/60 backdrop-blur-sm">
+          <div className="w-[320px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card p-6 text-center shadow-2xl">
+            <div className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+              {incoming.mode === "video" ? "Appel vidéo entrant" : "Appel vocal entrant"}
+            </div>
+            <div className="mb-6 text-xl font-bold">{incoming.fromName}</div>
+            <div className="mb-4 animate-pulse text-sm text-muted-foreground">Sonnerie…</div>
+            <div className="flex items-center justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  stopRing();
+                  setIncoming(null);
+                }}
+                className="grid h-14 w-14 place-items-center rounded-full bg-destructive text-white shadow-lg transition hover:scale-105"
+                aria-label="Refuser"
+              >
+                <PhoneOff className="h-6 w-6" />
+              </button>
+              <a
+                href={buildInAppCallUrl(incoming.url, incoming.mode)}
+                onClick={() => {
+                  stopRing();
+                  setIncoming(null);
+                }}
+                className="grid h-14 w-14 place-items-center rounded-full bg-green-600 text-white shadow-lg transition hover:scale-105"
+                aria-label="Répondre"
+              >
+                {incoming.mode === "video" ? <Video className="h-6 w-6" /> : <Phone className="h-6 w-6" />}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Conversation list popup */}
+
       {state.listOpen && (
         <div className="fixed bottom-20 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
