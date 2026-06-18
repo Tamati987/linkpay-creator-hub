@@ -110,12 +110,26 @@ function renderMessageBody(body: string) {
   });
 }
 
+type IncomingCall = {
+  fromId: string;
+  fromName: string;
+  url: string;
+  mode: "audio" | "video";
+};
+
 export function MessengerDock() {
   const { user } = useAuth();
   const fetchConvos = useServerFn(listConversations);
   const [state, setState] = useState<DockState>({ listOpen: false, openThreads: [] });
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [loadingConvos, setLoadingConvos] = useState(false);
+  const [incoming, setIncoming] = useState<IncomingCall | null>(null);
+  const ringStopRef = useRef<(() => void) | null>(null);
+
+  const stopRing = () => {
+    ringStopRef.current?.();
+    ringStopRef.current = null;
+  };
 
   const reloadConvos = () => {
     setLoadingConvos(true);
@@ -154,15 +168,37 @@ export function MessengerDock() {
           if (m.sender_id === user.id || m.recipient_id === user.id) {
             reloadConvos();
           }
+          // Incoming message for me → play sound / ringtone
+          if (m.recipient_id === user.id && m.sender_id !== user.id) {
+            const body: string = m.body || "";
+            const urlMatch = body.match(/https?:\/\/[^\s]+/);
+            const isVideo = body.includes("📹 Appel vidéo");
+            const isAudio = body.includes("📞 Appel vocal");
+            if ((isVideo || isAudio) && urlMatch) {
+              stopRing();
+              ringStopRef.current = startRingtone();
+              const c = convos.find((x) => x.otherId === m.sender_id);
+              setIncoming({
+                fromId: m.sender_id,
+                fromName: c?.profile.display_name || c?.profile.username || "Quelqu'un",
+                url: urlMatch[0],
+                mode: isVideo ? "video" : "audio",
+              });
+            } else {
+              playNotificationSound();
+            }
+          }
         },
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
+      stopRing();
     };
-  }, [user?.id]);
+  }, [user?.id, convos]);
 
   if (!user) return null;
+
 
   const closeThread = (id: string) =>
     setState((s) => ({ ...s, openThreads: s.openThreads.filter((x) => x !== id) }));
