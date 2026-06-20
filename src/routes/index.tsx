@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Link2, PlayCircle, ShoppingBag, Sparkles, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Download, Link2, PlayCircle, ShoppingBag, Sparkles, Wallet, Zap } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { UserSearchBar } from "@/components/UserSearchBar";
 
