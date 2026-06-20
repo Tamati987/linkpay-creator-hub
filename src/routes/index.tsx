@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Link2, PlayCircle, ShoppingBag, Sparkles, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Download, Link2, PlayCircle, ShoppingBag, Sparkles, Wallet, Zap } from "lucide-react";
 import { ZenoLogo } from "@/components/ZenoLogo";
 import { UserSearchBar } from "@/components/UserSearchBar";
 
@@ -45,7 +46,35 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 function Landing() {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showInstall, setShowInstall] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setShowInstall(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      setDeferredPrompt(null);
+      setShowInstall(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-6">
@@ -54,6 +83,15 @@ function Landing() {
         </Link>
         <UserSearchBar className="mx-auto hidden w-full max-w-sm sm:block" />
         <nav className="ml-auto flex items-center gap-2 text-sm">
+          {showInstall && (
+            <button
+              onClick={handleInstall}
+              className="hidden items-center gap-1.5 rounded-lg border border-border glass px-3 py-2 text-muted-foreground transition hover:text-foreground sm:inline-flex"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Télécharger l'app
+            </button>
+          )}
           <Link
             to="/pricing"
             className="hidden rounded-lg px-3 py-2 text-muted-foreground transition hover:text-foreground sm:inline"
