@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Loader2, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Phone, Send, Video } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -11,6 +11,7 @@ import {
   listMessages,
   sendMessage,
 } from "@/lib/messages.functions";
+import { createVideoRoom } from "@/lib/video-call.functions";
 
 export const Route = createFileRoute("/messages")({
   validateSearch: z.object({ to: z.string().uuid().optional() }),
@@ -54,6 +55,8 @@ function MessagesPage() {
   const fetchConvos = useServerFn(listConversations);
   const fetchMessages = useServerFn(listMessages);
   const send = useServerFn(sendMessage);
+  const createRoom = useServerFn(createVideoRoom);
+  const [callStarting, setCallStarting] = useState<"audio" | "video" | null>(null);
 
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(to ?? null);
@@ -141,7 +144,29 @@ function MessagesPage() {
     }
   };
 
+  const startCall = async (mode: "audio" | "video") => {
+    if (!activeId || callStarting) return;
+    setCallStarting(mode);
+    try {
+      const room = await createRoom({ data: { mode } });
+      const callUrl = `${window.location.origin}/call/${room.name}?mode=${mode}&url=${encodeURIComponent(room.url)}`;
+      const label = mode === "audio" ? "📞 Appel vocal" : "📹 Appel vidéo";
+      await send({
+        data: {
+          recipientId: activeId,
+          body: `${label} — rejoins-moi ici : ${callUrl}`,
+        },
+      });
+      window.open(callUrl, "_blank");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Impossible de démarrer l'appel");
+    } finally {
+      setCallStarting(null);
+    }
+  };
+
   const activeProfile = active.other;
+
   const showThread = !!activeId;
 
   return (
@@ -230,8 +255,8 @@ function MessagesPage() {
           {/* Thread */}
           <section
             className={`${
-              showThread ? "block" : "hidden md:block"
-            } flex min-h-[60vh] flex-col rounded-2xl border border-border bg-card`}
+              showThread ? "flex" : "hidden md:flex"
+            } min-h-[60vh] flex-col rounded-2xl border border-border bg-card`}
           >
             {!activeId ? (
               <div className="m-auto p-8 text-center text-sm text-muted-foreground">
@@ -278,7 +303,40 @@ function MessagesPage() {
                       </div>
                     </Link>
                   )}
+                  {activeId && (
+                    <div className="ml-auto flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startCall("audio")}
+                        disabled={callStarting !== null}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition hover:bg-accent disabled:opacity-50"
+                        aria-label="Appel vocal"
+                        title="Appel vocal"
+                      >
+                        {callStarting === "audio" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Phone className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startCall("video")}
+                        disabled={callStarting !== null}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition hover:bg-accent disabled:opacity-50"
+                        aria-label="Appel vidéo"
+                        title="Appel vidéo"
+                      >
+                        {callStarting === "video" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Video className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </header>
+
 
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {loadingThread ? (
