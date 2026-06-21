@@ -350,6 +350,8 @@ function MessagesPage() {
                   ) : (
                     active.messages.map((m) => {
                       const mine = m.sender_id === user?.id;
+                      const callMatch = m.body.match(/(https?:\/\/[^\s]+\/call\/[^\s]+)/);
+                      const isVideo = callMatch && /mode=video/.test(callMatch[1]);
                       return (
                         <div
                           key={m.id}
@@ -363,6 +365,25 @@ function MessagesPage() {
                             }`}
                           >
                             <div className="whitespace-pre-wrap break-words">{m.body}</div>
+                            {callMatch && (
+                              <a
+                                href={callMatch[1]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition hover:scale-105 ${
+                                  mine
+                                    ? "bg-primary-foreground/20 text-primary-foreground"
+                                    : "bg-primary text-primary-foreground"
+                                }`}
+                              >
+                                {isVideo ? (
+                                  <Video className="h-3.5 w-3.5" />
+                                ) : (
+                                  <Phone className="h-3.5 w-3.5" />
+                                )}
+                                Rejoindre l'appel
+                              </a>
+                            )}
                             <div
                               className={`mt-0.5 text-[10px] ${
                                 mine ? "text-primary-foreground/70" : "text-muted-foreground"
