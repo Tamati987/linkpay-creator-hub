@@ -303,7 +303,40 @@ function MessagesPage() {
                       </div>
                     </Link>
                   )}
+                  {activeId && (
+                    <div className="ml-auto flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startCall("audio")}
+                        disabled={callStarting !== null}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition hover:bg-accent disabled:opacity-50"
+                        aria-label="Appel vocal"
+                        title="Appel vocal"
+                      >
+                        {callStarting === "audio" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Phone className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startCall("video")}
+                        disabled={callStarting !== null}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition hover:bg-accent disabled:opacity-50"
+                        aria-label="Appel vidéo"
+                        title="Appel vidéo"
+                      >
+                        {callStarting === "video" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Video className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </header>
+
 
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {loadingThread ? (
