@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Loader2, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Phone, Send, Video } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -11,6 +11,7 @@ import {
   listMessages,
   sendMessage,
 } from "@/lib/messages.functions";
+import { createVideoRoom } from "@/lib/video-call.functions";
 
 export const Route = createFileRoute("/messages")({
   validateSearch: z.object({ to: z.string().uuid().optional() }),
