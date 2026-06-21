@@ -255,8 +255,8 @@ function MessagesPage() {
           {/* Thread */}
           <section
             className={`${
-              showThread ? "block" : "hidden md:block"
-            } flex min-h-[60vh] flex-col rounded-2xl border border-border bg-card`}
+              showThread ? "flex" : "hidden md:flex"
+            } min-h-[60vh] flex-col rounded-2xl border border-border bg-card`}
           >
             {!activeId ? (
               <div className="m-auto p-8 text-center text-sm text-muted-foreground">
