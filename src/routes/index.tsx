@@ -54,8 +54,19 @@ interface BeforeInstallPromptEvent extends Event {
 function Landing() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [showIOSHelp, setShowIOSHelp] = useState(false);
 
   useEffect(() => {
+    const ua = window.navigator.userAgent;
+    const iOS = /iPad|iPhone|iPod/.test(ua) && !(window as unknown as { MSStream?: unknown }).MSStream;
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    setIsIOS(iOS);
+    setIsStandalone(standalone);
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -66,6 +77,10 @@ function Landing() {
   }, []);
 
   const handleInstall = async () => {
+    if (isIOS) {
+      setShowIOSHelp(true);
+      return;
+    }
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
@@ -75,21 +90,48 @@ function Landing() {
     }
   };
 
+  const canShowInstall = !isStandalone && (showInstall || isIOS);
+
   return (
     <div className="min-h-screen">
+      {showIOSHelp && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          onClick={() => setShowIOSHelp(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-border bg-background p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold">Installer Zeno sur iPhone</h3>
+            <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <li>1. Touchez l'icône <span className="font-medium text-foreground">Partager</span> en bas de Safari (carré avec flèche vers le haut).</li>
+              <li>2. Faites défiler et choisissez <span className="font-medium text-foreground">« Sur l'écran d'accueil »</span>.</li>
+              <li>3. Touchez <span className="font-medium text-foreground">Ajouter</span>. L'app Zeno apparaîtra sur votre écran.</li>
+            </ol>
+            <button
+              onClick={() => setShowIOSHelp(false)}
+              className="mt-6 w-full rounded-lg bg-gradient-button px-4 py-2.5 text-sm font-medium text-primary-foreground"
+            >
+              Compris
+            </button>
+          </div>
+        </div>
+      )}
       <header className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-6">
         <Link to="/">
           <ZenoLogo />
         </Link>
         <UserSearchBar className="mx-auto hidden w-full max-w-sm sm:block" />
         <nav className="ml-auto flex items-center gap-2 text-sm">
-          {showInstall && (
+          {canShowInstall && (
             <button
               onClick={handleInstall}
-              className="hidden items-center gap-1.5 rounded-lg border border-border glass px-3 py-2 text-muted-foreground transition hover:text-foreground sm:inline-flex"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border glass px-3 py-2 text-muted-foreground transition hover:text-foreground"
             >
               <Download className="h-3.5 w-3.5" />
-              Télécharger l'app
+              <span className="hidden sm:inline">Télécharger l'app</span>
+              <span className="sm:hidden">App</span>
             </button>
           )}
           <Link
