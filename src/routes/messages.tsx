@@ -144,7 +144,29 @@ function MessagesPage() {
     }
   };
 
+  const startCall = async (mode: "audio" | "video") => {
+    if (!activeId || callStarting) return;
+    setCallStarting(mode);
+    try {
+      const room = await createRoom({ data: { mode } });
+      const callUrl = `${window.location.origin}/call/${room.name}?mode=${mode}&url=${encodeURIComponent(room.url)}`;
+      const label = mode === "audio" ? "📞 Appel vocal" : "📹 Appel vidéo";
+      await send({
+        data: {
+          recipientId: activeId,
+          body: `${label} — rejoins-moi ici : ${callUrl}`,
+        },
+      });
+      window.open(callUrl, "_blank");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Impossible de démarrer l'appel");
+    } finally {
+      setCallStarting(null);
+    }
+  };
+
   const activeProfile = active.other;
+
   const showThread = !!activeId;
 
   return (
