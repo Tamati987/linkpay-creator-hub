@@ -125,6 +125,10 @@ export function MessengerDock() {
   const [loadingConvos, setLoadingConvos] = useState(false);
   const [incoming, setIncoming] = useState<IncomingCall | null>(null);
   const ringStopRef = useRef<(() => void) | null>(null);
+  const convosRef = useRef<Conversation[]>([]);
+  useEffect(() => {
+    convosRef.current = convos;
+  }, [convos]);
 
   const stopRing = () => {
     ringStopRef.current?.();
@@ -177,7 +181,7 @@ export function MessengerDock() {
             if ((isVideo || isAudio) && urlMatch) {
               stopRing();
               ringStopRef.current = startRingtone();
-              const c = convos.find((x) => x.otherId === m.sender_id);
+              const c = convosRef.current.find((x) => x.otherId === m.sender_id);
               setIncoming({
                 fromId: m.sender_id,
                 fromName: c?.profile.display_name || c?.profile.username || "Quelqu'un",
@@ -195,7 +199,7 @@ export function MessengerDock() {
       supabase.removeChannel(channel);
       stopRing();
     };
-  }, [user?.id, convos]);
+  }, [user?.id]);
 
   if (!user) return null;
 
