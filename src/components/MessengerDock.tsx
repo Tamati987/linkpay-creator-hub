@@ -125,6 +125,10 @@ export function MessengerDock() {
   const [loadingConvos, setLoadingConvos] = useState(false);
   const [incoming, setIncoming] = useState<IncomingCall | null>(null);
   const ringStopRef = useRef<(() => void) | null>(null);
+  const convosRef = useRef<Conversation[]>([]);
+  useEffect(() => {
+    convosRef.current = convos;
+  }, [convos]);
 
   const stopRing = () => {
     ringStopRef.current?.();
