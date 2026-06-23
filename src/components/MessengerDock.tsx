@@ -181,7 +181,7 @@ export function MessengerDock() {
             if ((isVideo || isAudio) && urlMatch) {
               stopRing();
               ringStopRef.current = startRingtone();
-              const c = convos.find((x) => x.otherId === m.sender_id);
+              const c = convosRef.current.find((x) => x.otherId === m.sender_id);
               setIncoming({
                 fromId: m.sender_id,
                 fromName: c?.profile.display_name || c?.profile.username || "Quelqu'un",
@@ -199,7 +199,7 @@ export function MessengerDock() {
       supabase.removeChannel(channel);
       stopRing();
     };
-  }, [user?.id, convos]);
+  }, [user?.id]);
 
   if (!user) return null;
 
