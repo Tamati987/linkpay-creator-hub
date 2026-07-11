@@ -52,6 +52,7 @@ type ProductRow = {
   id: string; title: string; description: string;
   price_cents: number; image_url: string | null; position: number;
   payout_url: string | null;
+  shipping_cents: number; shipping_discount_cents: number;
 };
 
 function DashboardPage() {
