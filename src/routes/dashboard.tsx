@@ -765,6 +765,12 @@ function ProductsSection({
         </div>
         <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input value={shippingPrice} onChange={(e) => setShippingPrice(e.target.value)} type="number" min="0" step="0.01" placeholder="Prix livraison $ (ex. 4.90)"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <input value={shippingDiscount} onChange={(e) => setShippingDiscount(e.target.value)} type="number" min="0" step="0.01" placeholder="Remise sur livraison $ (optionnel)"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        </div>
         <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — requis"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         <div className="flex flex-wrap items-center gap-2">
