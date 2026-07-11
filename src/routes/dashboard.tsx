@@ -52,6 +52,7 @@ type ProductRow = {
   id: string; title: string; description: string;
   price_cents: number; image_url: string | null; position: number;
   payout_url: string | null;
+  shipping_cents: number; shipping_discount_cents: number;
 };
 
 function DashboardPage() {
@@ -101,7 +102,7 @@ function DashboardPage() {
           supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, theme").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
-          supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at").eq("user_id", uid)
+          supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at, shipping_cents, shipping_discount_cents").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("purchases").select("amount_cents").eq("seller_id", uid),
           supabase.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("user_id", uid),
@@ -675,6 +676,8 @@ function ProductsSection({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [shippingPrice, setShippingPrice] = useState("");
+  const [shippingDiscount, setShippingDiscount] = useState("");
   const [payoutUrl, setPayoutUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
@@ -685,6 +688,11 @@ function ProductsSection({
   const add = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const shippingNum = shippingPrice.trim() === "" ? 0 : parseFloat(shippingPrice);
+    const shippingDiscountNum = shippingDiscount.trim() === "" ? 0 : parseFloat(shippingDiscount);
+    if (isNaN(shippingNum) || shippingNum < 0) return toast.error("Prix de livraison invalide");
+    if (isNaN(shippingDiscountNum) || shippingDiscountNum < 0) return toast.error("Remise livraison invalide");
+    if (shippingDiscountNum > shippingNum) return toast.error("La remise ne peut pas dépasser le prix de la livraison");
     const trimmedPayout = payoutUrl.trim();
     if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
       return toast.error("Le lien de paiement doit commencer par https://");
@@ -711,6 +719,8 @@ function ProductsSection({
     }
     const { error } = await supabase.from("products").insert({
       user_id: userId, title, description, price_cents: Math.round(priceNum * 100),
+      shipping_cents: Math.round(shippingNum * 100),
+      shipping_discount_cents: Math.round(shippingDiscountNum * 100),
       file_path: filePath, image_url: imageUrl, position: products.length,
       payout_url: trimmedPayout || null,
     });
@@ -722,7 +732,7 @@ function ProductsSection({
       console.error("[products.insert]", error);
       return toast.error("Impossible d'ajouter ce produit. Réessayez.");
     }
-    setTitle(""); setDescription(""); setPrice(""); setPayoutUrl(""); setFile(null); setImage(null);
+    setTitle(""); setDescription(""); setPrice(""); setShippingPrice(""); setShippingDiscount(""); setPayoutUrl(""); setFile(null); setImage(null);
     onChanged();
     toast.success("Produit ajouté");
   };
@@ -755,6 +765,12 @@ function ProductsSection({
         </div>
         <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description courte (optionnel)"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input value={shippingPrice} onChange={(e) => setShippingPrice(e.target.value)} type="number" min="0" step="0.01" placeholder="Prix livraison $ (ex. 4.90)"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <input value={shippingDiscount} onChange={(e) => setShippingDiscount(e.target.value)} type="number" min="0" step="0.01" placeholder="Remise sur livraison $ (optionnel)"
+            className="h-10 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+        </div>
         <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…) — requis"
           className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         <div className="flex flex-wrap items-center gap-2">
@@ -815,6 +831,8 @@ function ProductRowItem({
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState((product.price_cents / 100).toString());
+  const [shippingPrice, setShippingPrice] = useState(((product.shipping_cents ?? 0) / 100).toString());
+  const [shippingDiscount, setShippingDiscount] = useState(((product.shipping_discount_cents ?? 0) / 100).toString());
   const [payoutUrl, setPayoutUrl] = useState(product.payout_url ?? "");
   const [image, setImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -824,6 +842,8 @@ function ProductRowItem({
     setEditing(false);
     setTitle(product.title); setDescription(product.description);
     setPrice((product.price_cents / 100).toString());
+    setShippingPrice(((product.shipping_cents ?? 0) / 100).toString());
+    setShippingDiscount(((product.shipping_discount_cents ?? 0) / 100).toString());
     setPayoutUrl(product.payout_url ?? "");
     setImage(null);
   };
@@ -831,6 +851,11 @@ function ProductRowItem({
   const save = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const shippingNum = shippingPrice.trim() === "" ? 0 : parseFloat(shippingPrice);
+    const shippingDiscountNum = shippingDiscount.trim() === "" ? 0 : parseFloat(shippingDiscount);
+    if (isNaN(shippingNum) || shippingNum < 0) return toast.error("Prix de livraison invalide");
+    if (isNaN(shippingDiscountNum) || shippingDiscountNum < 0) return toast.error("Remise livraison invalide");
+    if (shippingDiscountNum > shippingNum) return toast.error("La remise ne peut pas dépasser le prix de la livraison");
     const trimmedPayout = payoutUrl.trim();
     if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
       return toast.error("Le lien de paiement doit commencer par https://");
@@ -847,6 +872,8 @@ function ProductRowItem({
     }
     const { error } = await supabase.from("products").update({
       title, description, price_cents: Math.round(priceNum * 100), image_url: imageUrl,
+      shipping_cents: Math.round(shippingNum * 100),
+      shipping_discount_cents: Math.round(shippingDiscountNum * 100),
       payout_url: trimmedPayout || null,
     }).eq("id", product.id);
     setSaving(false);
@@ -892,6 +919,12 @@ function ProductRowItem({
           </div>
           <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description"
             className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input value={shippingPrice} onChange={(e) => setShippingPrice(e.target.value)} type="number" min="0" step="0.01" placeholder="Prix livraison $"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+            <input value={shippingDiscount} onChange={(e) => setShippingDiscount(e.target.value)} type="number" min="0" step="0.01" placeholder="Remise livraison $"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
+          </div>
           <input value={payoutUrl} onChange={(e) => setPayoutUrl(e.target.value)} type="url" placeholder="Lien de paiement (Stripe, PayPal, Gumroad…)"
             className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40" />
         </div>
