@@ -8,6 +8,8 @@ type Product = {
   price_cents: number;
   image_url?: string | null;
   payout_url?: string | null;
+  shipping_cents?: number | null;
+  shipping_discount_cents?: number | null;
 };
 
 const formatPrice = (cents: number) =>
