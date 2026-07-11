@@ -102,7 +102,7 @@ function DashboardPage() {
           supabase.from("profiles").select("id, username, display_name, bio, avatar_url, is_pro, cover_url, theme").eq("id", uid).maybeSingle(),
           supabase.from("links").select("*").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
-          supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at").eq("user_id", uid)
+          supabase.from("products").select("id, title, description, price_cents, image_url, position, payout_url, user_id, created_at, shipping_cents, shipping_discount_cents").eq("user_id", uid)
             .order("position", { ascending: true }).order("created_at", { ascending: true }),
           supabase.from("purchases").select("amount_cents").eq("seller_id", uid),
           supabase.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("user_id", uid),
