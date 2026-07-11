@@ -412,6 +412,8 @@ export type Database = {
           payout_url: string | null
           position: number
           price_cents: number
+          shipping_cents: number
+          shipping_discount_cents: number
           title: string
           user_id: string
         }
@@ -424,6 +426,8 @@ export type Database = {
           payout_url?: string | null
           position?: number
           price_cents?: number
+          shipping_cents?: number
+          shipping_discount_cents?: number
           title: string
           user_id: string
         }
@@ -436,6 +440,8 @@ export type Database = {
           payout_url?: string | null
           position?: number
           price_cents?: number
+          shipping_cents?: number
+          shipping_discount_cents?: number
           title?: string
           user_id?: string
         }
