@@ -831,6 +831,8 @@ function ProductRowItem({
   const [title, setTitle] = useState(product.title);
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState((product.price_cents / 100).toString());
+  const [shippingPrice, setShippingPrice] = useState(((product.shipping_cents ?? 0) / 100).toString());
+  const [shippingDiscount, setShippingDiscount] = useState(((product.shipping_discount_cents ?? 0) / 100).toString());
   const [payoutUrl, setPayoutUrl] = useState(product.payout_url ?? "");
   const [image, setImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -840,6 +842,8 @@ function ProductRowItem({
     setEditing(false);
     setTitle(product.title); setDescription(product.description);
     setPrice((product.price_cents / 100).toString());
+    setShippingPrice(((product.shipping_cents ?? 0) / 100).toString());
+    setShippingDiscount(((product.shipping_discount_cents ?? 0) / 100).toString());
     setPayoutUrl(product.payout_url ?? "");
     setImage(null);
   };
@@ -847,6 +851,11 @@ function ProductRowItem({
   const save = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const shippingNum = shippingPrice.trim() === "" ? 0 : parseFloat(shippingPrice);
+    const shippingDiscountNum = shippingDiscount.trim() === "" ? 0 : parseFloat(shippingDiscount);
+    if (isNaN(shippingNum) || shippingNum < 0) return toast.error("Prix de livraison invalide");
+    if (isNaN(shippingDiscountNum) || shippingDiscountNum < 0) return toast.error("Remise livraison invalide");
+    if (shippingDiscountNum > shippingNum) return toast.error("La remise ne peut pas dépasser le prix de la livraison");
     const trimmedPayout = payoutUrl.trim();
     if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
       return toast.error("Le lien de paiement doit commencer par https://");
@@ -863,6 +872,8 @@ function ProductRowItem({
     }
     const { error } = await supabase.from("products").update({
       title, description, price_cents: Math.round(priceNum * 100), image_url: imageUrl,
+      shipping_cents: Math.round(shippingNum * 100),
+      shipping_discount_cents: Math.round(shippingDiscountNum * 100),
       payout_url: trimmedPayout || null,
     }).eq("id", product.id);
     setSaving(false);
