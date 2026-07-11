@@ -688,6 +688,11 @@ function ProductsSection({
   const add = async () => {
     const priceNum = parseFloat(price);
     if (!title || isNaN(priceNum) || priceNum < 0) return toast.error("Titre et prix valides requis");
+    const shippingNum = shippingPrice.trim() === "" ? 0 : parseFloat(shippingPrice);
+    const shippingDiscountNum = shippingDiscount.trim() === "" ? 0 : parseFloat(shippingDiscount);
+    if (isNaN(shippingNum) || shippingNum < 0) return toast.error("Prix de livraison invalide");
+    if (isNaN(shippingDiscountNum) || shippingDiscountNum < 0) return toast.error("Remise livraison invalide");
+    if (shippingDiscountNum > shippingNum) return toast.error("La remise ne peut pas dépasser le prix de la livraison");
     const trimmedPayout = payoutUrl.trim();
     if (trimmedPayout && !/^https?:\/\//i.test(trimmedPayout)) {
       return toast.error("Le lien de paiement doit commencer par https://");
@@ -714,6 +719,8 @@ function ProductsSection({
     }
     const { error } = await supabase.from("products").insert({
       user_id: userId, title, description, price_cents: Math.round(priceNum * 100),
+      shipping_cents: Math.round(shippingNum * 100),
+      shipping_discount_cents: Math.round(shippingDiscountNum * 100),
       file_path: filePath, image_url: imageUrl, position: products.length,
       payout_url: trimmedPayout || null,
     });
@@ -725,7 +732,7 @@ function ProductsSection({
       console.error("[products.insert]", error);
       return toast.error("Impossible d'ajouter ce produit. Réessayez.");
     }
-    setTitle(""); setDescription(""); setPrice(""); setPayoutUrl(""); setFile(null); setImage(null);
+    setTitle(""); setDescription(""); setPrice(""); setShippingPrice(""); setShippingDiscount(""); setPayoutUrl(""); setFile(null); setImage(null);
     onChanged();
     toast.success("Produit ajouté");
   };
