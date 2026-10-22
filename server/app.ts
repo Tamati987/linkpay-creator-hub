@@ -20,6 +20,7 @@ const APP_HTML = `<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>__APPCSS__</style>
+<style>.btn.big{font-size:15px;padding:16px 24px}.steps{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}.steps div{display:flex;align-items:center;gap:9px;background:#0f1626;border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;color:#dbe4f5}.steps b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--cyan);color:#061019;font-size:12px}.ctabar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;align-items:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#080b14f2;backdrop-filter:blur(10px);border-top:1px solid var(--line)}.ctabar span{flex:1;font-size:13px;color:#dbe4f5;line-height:1.3}.ctabar b{color:var(--green)}.ctabar .btn{white-space:nowrap;font-size:14px}@media(max-width:700px){.ctabar.on{display:flex}body{padding-bottom:76px}.hero:before{max-height:170px;margin:-20px auto 20px}.hero h1{font-size:36px}.steps{flex-direction:column;align-items:stretch}.hero-actions .btn{width:100%}}</style>
 </head>
 <body>
 <header class="topbar"><div class="wrap">
@@ -28,11 +29,12 @@ const APP_HTML = `<!DOCTYPE html>
 <div class="right"><span class="who" id="who"></span><button class="quiet" id="logoutBtn" hidden onclick="logout()">Déconnexion</button><button class="btn" id="loginBtn" onclick="openAuth('login')">Connexion</button></div>
 </div></header>
 <main class="wrap">
-<section class="hero" id="home"><div class="pill"><span class="dot"></span> QR CODES & ÉTIQUETTES NFC INTELLIGENTS</div>
-<h1>Le monde réel.<br><span>Connecté autrement.</span></h1>
-<p>Transforme une carte, une vitrine ou un produit en micro-page mobile. Publie-la en un clic, imprime ton QR code, écris ton étiquette NFC — et mesure chaque scan.</p>
-<div class="hero-actions"><button class="btn" onclick="go('studio')">Créer ma micro-page</button><button class="btn secondary" onclick="window.open('/p/demo','_blank')">Voir un exemple</button></div>
-<div class="trust"><span>Éditeur en direct</span><span>QR & NFC qui ne changent jamais</span><span>Statistiques réelles</span><span>30 jours d’essai gratuit</span></div></section>
+<section class="hero" id="home"><div class="pill"><span class="dot"></span> 30 JOURS GRATUITS · SANS CARTE BANCAIRE</div>
+<h1>Ton commerce dans un QR code.<br><span>Prêt en 5 minutes.</span></h1>
+<p>Menu, WhatsApp, Facebook, avis clients, photos : tout sur une page mobile que tes clients ouvrent en scannant ton QR code ou ton étiquette NFC. Tu la modifies quand tu veux, le QR code imprimé reste le même.</p>
+<div class="hero-actions"><button class="btn big" onclick="startTrial()">Essayer gratuitement 30 jours</button><button class="btn secondary" onclick="window.open('/p/demo','_blank')">Voir un exemple : Le Petit Bistro ↗</button></div>
+<div class="steps"><div><b>1</b>Crée ton compte gratuit</div><div><b>2</b>Remplis ta page (modèles prêts)</div><div><b>3</b>Imprime ton QR code</div></div>
+<div class="trust"><span>Sans engagement</span><span>QR & NFC qui ne changent jamais</span><span>Statistiques des scans</span><span>Fait en Polynésie</span></div></section>
 
 <section class="section" id="studio"><div class="section-head"><div class="eyebrow">01 / CRÉATION</div><h2>Ton studio de micro-pages</h2><p>Modifie, regarde le résultat en direct, puis publie.</p></div>
 <div class="tban" id="trialBan" hidden><span id="trialText"></span><a class="btn" href="#pricing">Voir les offres</a></div>
@@ -97,6 +99,8 @@ const APP_HTML = `<!DOCTYPE html>
 <p style="margin:14px 0 0;text-align:center"><button class="link" id="aSwitch" onclick="switchAuth()">Pas encore de compte ? Créer un compte</button><br><button class="link" id="aForgot" onclick="setAuth('forgot')" style="margin-top:8px">Mot de passe oublié</button></p></div></div>
 <div class="picker" id="picker"><div class="panel pbox"><button class="close" onclick="closePicker()" aria-label="Fermer">×</button><h3>Choisis une icône</h3><p>Elle prend automatiquement la couleur de ta page.</p><div class="pgrid" id="pgrid"></div></div></div>
 <div class="toastbox" id="toasts"></div>
+<div class="ctabar" id="ctabar"><span><b>30 jours gratuits</b><br>sans carte bancaire</span><button class="btn" onclick="startTrial()">Essayer</button></div>
+<script>function startTrial(){if(curUser())return go("studio");openAuth("signup")}function curUser(){try{return user}catch(e){return null}}setInterval(function(){var b=document.getElementById("ctabar"),m=document.getElementById("authModal");if(b&&m)b.classList.toggle("on",!curUser()&&!m.classList.contains("open"))},800)</script>
 <script>
 const SB_URL="__SB_URL__",SB_KEY="__SB_KEY__",CONTACT="__CONTACT__",BILLING="__BILLING__",ICONS=__ICONS__;function ic(e){const t=String(e||"");return t.startsWith("i:")&&ICONS[t.slice(2)]?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[t.slice(2)][1]+"</svg>":esc(t)}const PLAN_NAMES={
 free:"Gratuite",expired:"Essai terminé",starter:"Starter",pro:"Pro",agency:"Agency"},sb=supabase.createClient(SB_URL,SB_KEY),$=e=>document.getElementById(e),THEMES={cyber:"#66f2ff",gold:"#f4c86a",sunset:"#ff7d9a",emerald:"#71f7bd"},SLOTS=[["morning","Matin","07:00"],["afternoon","Après-midi","12:00"],["evening","Soir","18:00"]],toMin=e=>{const t=/^(\\d{1,2}):(\\d{2})$/.exec(e||"")
